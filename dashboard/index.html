@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Pipeline Observability Dashboard</title>
+<script src="chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:13px}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1a;color:#cbd5e1;min-height:100vh;overflow-x:hidden}
+:root{
+  --bg-base:#080d1a;--bg-surface:#0d1222;--bg-card:#111827;--bg-elevated:#1a2035;
+  --border-dim:#1a2236;--border:#222d46;
+  --text:#e2e8f0;--text2:#8892b0;--text3:#4a5568;
+  --ok:#22c55e;--warn:#f59e0b;--err:#ef4444;--delay:#fb923c;--unknown:#6b7280;--miss:#1e293b;
+  --cat:#3b82f6;--rt:#10b981;--yms:#f97316;--file:#a855f7;--chip:#ec4899;
+  --accent:#6366f1
+}
+.wrap{max-width:1640px;margin:0 auto;padding:0 18px 36px}
+
+/* ─── HEADER ─────────────────────────────────────────────── */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 0 12px;border-bottom:1px solid var(--border-dim);margin-bottom:18px}
+.hdr-l{display:flex;align-items:center;gap:14px}
+.hdr-title{font-size:1.35rem;font-weight:800;color:var(--text);letter-spacing:-.5px}
+.hdr-title span{color:var(--accent)}
+.live-badge{background:rgba(34,197,94,.12);color:var(--ok);border:1px solid rgba(34,197,94,.3);padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;display:flex;align-items:center;gap:5px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--ok);animation:blink 1.4s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hdr-r{display:flex;align-items:center;gap:18px;font-size:.75rem;color:var(--text2)}
+.alert-chip{background:rgba(239,68,68,.12);color:var(--err);border:1px solid rgba(239,68,68,.3);padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:700;display:flex;align-items:center;gap:6px}
+.alert-chip-dot{width:6px;height:6px;border-radius:50%;background:var(--err);animation:blink 1.4s infinite}
+
+/* ─── KPI CARDS ───────────────────────────────────────────── */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+.kpi{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:10px 10px 0 0}
+.kpi.ok::before{background:var(--ok)}.kpi.warn::before{background:var(--warn)}.kpi.err::before{background:var(--err)}.kpi.info::before{background:var(--accent)}.kpi.gray::before{background:var(--text3)}
+.kpi-lbl{font-size:.68rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.kpi-val{font-size:1.9rem;font-weight:800;color:var(--text);line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:.68rem;color:var(--text3)}
+.kpi-badge{display:inline-block;margin-top:7px;padding:2px 8px;border-radius:10px;font-size:.68rem;font-weight:700}
+.kpi-badge.up{background:rgba(34,197,94,.1);color:var(--ok)}.kpi-badge.down{background:rgba(239,68,68,.1);color:var(--err)}.kpi-badge.neu{background:rgba(99,102,241,.1);color:var(--accent)}
+
+/* ─── MAIN 2-COL GRID ─────────────────────────────────────── */
+.main-grid{display:grid;grid-template-columns:1fr 340px;gap:14px;margin-bottom:14px}
+.left-col{display:flex;flex-direction:column;gap:14px}
+
+/* ─── CARD ─────────────────────────────────────────────────── */
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border-dim)}
+.card-title{font-size:.82rem;font-weight:800;color:var(--text);display:flex;align-items:center;gap:7px}
+.card-icon{font-size:.95rem}
+.card-sub{font-size:.7rem;color:var(--text3)}
+.card-body{padding:14px 16px}
+
+/* ─── LINEAGE SVG WRAPPER ─────────────────────────────────── */
+.lineage-wrap{padding:12px 14px;overflow-x:auto;background:#0a0f1e}
+.lineage-wrap svg{display:block;min-width:1060px}
+
+/* ─── LEGEND ──────────────────────────────────────────────── */
+.legend{display:flex;gap:14px;flex-wrap:wrap;padding:9px 14px;border-top:1px solid var(--border-dim)}
+.lg-item{display:flex;align-items:center;gap:5px;font-size:.68rem;color:var(--text2)}
+.lg-circle{width:10px;height:10px;border-radius:50%}
+.lg-diamond{width:9px;height:9px;transform:rotate(45deg)}
+.lg-hex{width:11px;height:11px;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)}
+.lg-rect{width:11px;height:9px;border-radius:2px}
+
+/* ─── TIMELINE ───────────────────────────────────────────── */
+.tl-wrap{padding:10px 14px;overflow-x:auto}
+.tl-hdr{display:flex;padding-left:140px;gap:2px;margin-bottom:5px}
+.tl-hr{flex:1;text-align:center;font-size:.6rem;color:var(--text3)}
+.tl-row{display:flex;align-items:center;gap:2px;margin-bottom:2.5px}
+.tl-lbl{width:136px;font-size:.67rem;padding-right:8px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+.tl-bars{display:flex;gap:1.5px;flex:1}
+.tl-cell{flex:1;height:15px;border-radius:2px;cursor:default;transition:opacity .15s}
+.tl-cell:hover{opacity:.65}
+.tl-cell.ok{background:var(--ok)}.tl-cell.delay{background:var(--delay)}.tl-cell.err{background:var(--err)}.tl-cell.miss{background:#1c2840;border:1px solid #2d3f5a}.tl-cell.skip{background:transparent}
+.tl-stat-legend{display:flex;gap:12px;padding:8px 14px;border-top:1px solid var(--border-dim)}
+.tl-sl{display:flex;align-items:center;gap:5px;font-size:.68rem;color:var(--text2)}
+.tl-sl-box{width:12px;height:12px;border-radius:2px}
+
+/* ─── SIDEBAR ────────────────────────────────────────────── */
+.sidebar{display:flex;flex-direction:column;gap:14px}
+.alert-item{padding:9px 13px;border-left:3px solid;border-radius:0 6px 6px 0;background:var(--bg-elevated);margin-bottom:4px}
+.alert-item.crit{border-color:var(--err)}.alert-item.warn{border-color:var(--warn)}.alert-item.info{border-color:var(--accent)}
+.alert-title{font-size:.75rem;font-weight:700;color:var(--text);margin-bottom:2px}
+.alert-desc{font-size:.68rem;color:var(--text2)}
+.alert-time{font-size:.63rem;color:var(--text3);margin-top:3px}
+.fresh-item{display:flex;align-items:center;justify-content:space-between;padding:7px 11px;background:var(--bg-elevated);border-radius:6px;margin-bottom:5px}
+.fresh-name{font-size:.72rem;color:var(--text2)}
+.fresh-badge{font-size:.65rem;padding:2px 8px;border-radius:10px;font-weight:700}
+.fresh-badge.fresh{background:rgba(34,197,94,.12);color:var(--ok)}.fresh-badge.stale{background:rgba(245,158,11,.12);color:var(--warn)}.fresh-badge.old{background:rgba(239,68,68,.12);color:var(--err)}
+
+/* ─── BOTTOM 3-COL ───────────────────────────────────────── */
+.bot-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.log-item{display:flex;gap:8px;align-items:flex-start;padding:4px 0;border-bottom:1px solid var(--border-dim)}
+.log-time{font-size:.62rem;color:var(--text3);white-space:nowrap;min-width:36px}
+.log-icon{font-size:.68rem;min-width:14px;text-align:center}
+.log-msg{font-size:.68rem;color:var(--text2)}
+
+/* ─── SLA meter ──────────────────────────────────────────── */
+.sla-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+.sla-item{background:var(--bg-elevated);border-radius:6px;padding:7px 10px}
+.sla-name{font-size:.63rem;color:var(--text3);margin-bottom:3px}
+.sla-val{font-size:1rem;font-weight:800;margin-bottom:2px}
+.sla-bar-bg{height:4px;background:#1a2236;border-radius:2px;overflow:hidden}
+.sla-bar-fill{height:100%;border-radius:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══ HEADER ══════════════════════════════════════════════ -->
+<div class="hdr">
+  <div class="hdr-l">
+    <div class="hdr-title">Data Pipeline <span>Observability</span></div>
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+  </div>
+  <div class="hdr-r">
+    <span>🕐 마지막 갱신: 09:47:32</span>
+    <span>|</span>
+    <span>환경: PRODUCTION</span>
+    <span>|</span>
+    <div class="alert-chip"><div class="alert-chip-dot"></div>활성 알림 3건</div>
+  </div>
+</div>
+
+<!-- ═══ KPI CARDS ════════════════════════════════════════════ -->
+<div class="kpi-row">
+  <div class="kpi ok">
+    <div class="kpi-lbl">총 파이프라인</div>
+    <div class="kpi-val">23</div>
+    <div class="kpi-sub">활성 20 · 정지 3</div>
+    <div class="kpi-badge up">▲ 정상 운영</div>
+  </div>
+  <div class="kpi warn">
+    <div class="kpi-lbl">24h 성공률</div>
+    <div class="kpi-val">87.5%</div>
+    <div class="kpi-sub">168 / 192 성공</div>
+    <div class="kpi-badge down">▼ -3.2% vs 전일</div>
+  </div>
+  <div class="kpi err">
+    <div class="kpi-lbl">활성 장애</div>
+    <div class="kpi-val">3</div>
+    <div class="kpi-sub">Critical 1 · Warning 2</div>
+    <div class="kpi-badge down">▼ 즉시 대응 필요</div>
+  </div>
+  <div class="kpi info">
+    <div class="kpi-lbl">평균 처리 지연</div>
+    <div class="kpi-val">4.2m</div>
+    <div class="kpi-sub">SLA 임계치: 10분</div>
+    <div class="kpi-badge neu">● 정상 범위</div>
+  </div>
+  <div class="kpi gray">
+    <div class="kpi-lbl">데이터 신선도</div>
+    <div class="kpi-val">2.1h</div>
+    <div class="kpi-sub">마지막 수신: 07:38</div>
+    <div class="kpi-badge down">▼ 일부 지연</div>
+  </div>
+</div>
+
+<!-- ═══ MAIN 2-COL ══════════════════════════════════════════ -->
+<div class="main-grid">
+  <div class="left-col">
+
+    <!-- ─── Data Lineage Card ─────────────────────────────── -->
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title"><span class="card-icon">🔗</span>Data Lineage Flow</div>
+        <div class="card-sub">원천 DB → CSV (20개) → mhub → Message Listener → Impala NiFi → Impala Refresh → Client</div>
+      </div>
+      <div class="lineage-wrap">
+        <svg viewBox="0 0 1100 340" style="width:100%;height:auto">
+          <defs>
+            <!-- Arrow markers -->
+            <marker id="am" markerWidth="9" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <path d="M0,0 L9,3.5 L0,7 Z" fill="#334155"/>
+            </marker>
+            <marker id="am-ok" markerWidth="9" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <path d="M0,0 L9,3.5 L0,7 Z" fill="rgba(34,197,94,.6)"/>
+            </marker>
+            <!-- Glow filters -->
+            <filter id="fg"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="fr"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="fy"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="fshadow"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,.6)"/></filter>
+            <!-- Gradients for source DBs -->
+            <radialGradient id="gcat"><stop offset="0%" stop-color="#1e40af"/><stop offset="100%" stop-color="#0f172a"/></radialGradient>
+            <radialGradient id="grt"><stop offset="0%" stop-color="#064e3b"/><stop offset="100%" stop-color="#0f172a"/></radialGradient>
+            <radialGradient id="gyms"><stop offset="0%" stop-color="#7c2d12"/><stop offset="100%" stop-color="#0f172a"/></radialGradient>
+            <radialGradient id="gfile"><stop offset="0%" stop-color="#4c1d95"/><stop offset="100%" stop-color="#0f172a"/></radialGradient>
+          </defs>
+
+          <!-- Canvas bg -->
+          <rect width="1100" height="340" fill="#090e1c" rx="4"/>
+
+          <!-- Column dividers -->
+          <line x1="170" y1="20" x2="170" y2="320" stroke="#1a2236" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="370" y1="20" x2="370" y2="320" stroke="#1a2236" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="530" y1="20" x2="530" y2="320" stroke="#1a2236" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="660" y1="20" x2="660" y2="320" stroke="#1a2236" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="800" y1="20" x2="800" y2="320" stroke="#1a2236" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="940" y1="20" x2="940" y2="320" stroke="#1a2236" stroke-width="1" stroke-dasharray="4,4"/>
+
+          <!-- Column Labels -->
+          <text x="85" y="15" text-anchor="middle" font-size="8.5" fill="#2d3d5a" font-weight="700" font-family="system-ui" letter-spacing="1">SOURCE DB</text>
+          <text x="262" y="15" text-anchor="middle" font-size="8.5" fill="#2d3d5a" font-weight="700" font-family="system-ui" letter-spacing="1">CSV PIPELINES (20)</text>
+          <text x="448" y="15" text-anchor="middle" font-size="8.5" fill="#2d3d5a" font-weight="700" font-family="system-ui" letter-spacing="1">MHUB</text>
+          <text x="593" y="15" text-anchor="middle" font-size="8.5" fill="#2d3d5a" font-weight="700" font-family="system-ui" letter-spacing="1">MSG LISTENER</text>
+          <text x="728" y="15" text-anchor="middle" font-size="8.5" fill="#2d3d5a" font-weight="700" font-family="system-ui" letter-spacing="1">NIFI (PARQUET)</text>
+          <text x="868" y="15" text-anchor="middle" font-size="8.5" fill="#2d3d5a" font-weight="700" font-family="system-ui" letter-spacing="1">IMPALA REFRESH</text>
+          <text x="1020" y="15" text-anchor="middle" font-size="8.5" fill="#2d3d5a" font-weight="700" font-family="system-ui" letter-spacing="1">CLIENT</text>
+
+          <!-- ══════════════════════════════════════════════ -->
+          <!-- SOURCE DB NODES                                -->
+          <!-- ══════════════════════════════════════════════ -->
+
+          <!-- 1. CATALOG DB — Circle — Blue (#3b82f6) -->
+          <g filter="url(#fshadow)">
+            <circle cx="85" cy="68" r="36" fill="url(#gcat)" stroke="#3b82f6" stroke-width="1.8"/>
+            <text x="85" y="62" text-anchor="middle" font-size="9" fill="#93c5fd" font-weight="800" font-family="system-ui">CATALOG</text>
+            <text x="85" y="75" text-anchor="middle" font-size="9" fill="#60a5fa" font-family="system-ui">DB</text>
+            <text x="85" y="88" text-anchor="middle" font-size="7.5" fill="#1e40af" font-family="system-ui">8 pipelines</text>
+          </g>
+          <!-- Gray status (unknown) -->
+          <circle cx="85" cy="108" r="5.5" fill="#6b7280" opacity=".9"/>
+          <circle cx="85" cy="108" r="9" fill="none" stroke="#6b7280" stroke-width="1" opacity=".25"/>
+          <text x="85" y="123" text-anchor="middle" font-size="7" fill="#6b7280" font-family="system-ui">알 수 없음</text>
+
+          <!-- 2. REALTIME DB — Diamond — Green (#10b981) -->
+          <g transform="translate(85,183)" filter="url(#fshadow)">
+            <polygon points="0,-38 38,0 0,38 -38,0" fill="url(#grt)" stroke="#10b981" stroke-width="1.8"/>
+            <text x="0" y="-7" text-anchor="middle" font-size="9" fill="#6ee7b7" font-weight="800" font-family="system-ui">REALTIME</text>
+            <text x="0" y="6" text-anchor="middle" font-size="9" fill="#34d399" font-family="system-ui">DB</text>
+            <text x="0" y="19" text-anchor="middle" font-size="7.5" fill="#064e3b" font-family="system-ui">5 pipelines</text>
+          </g>
+          <circle cx="85" cy="226" r="5.5" fill="#6b7280" opacity=".9"/>
+          <circle cx="85" cy="226" r="9" fill="none" stroke="#6b7280" stroke-width="1" opacity=".25"/>
+          <text x="85" y="241" text-anchor="middle" font-size="7" fill="#6b7280" font-family="system-ui">알 수 없음</text>
+
+          <!-- 3. YMS CDC — Hexagon — Orange (#f97316) -->
+          <g transform="translate(85,288)" filter="url(#fshadow)">
+            <polygon points="0,-28 24,-14 24,14 0,28 -24,14 -24,-14" fill="url(#gyms)" stroke="#f97316" stroke-width="1.8"/>
+            <text x="0" y="-4" text-anchor="middle" font-size="8.5" fill="#fdba74" font-weight="800" font-family="system-ui">YMS CDC</text>
+            <text x="0" y="8" text-anchor="middle" font-size="7.5" fill="#fb923c" font-family="system-ui">4 pipes</text>
+          </g>
+          <circle cx="85" cy="320" r="5.5" fill="#6b7280" opacity=".9"/>
+          <circle cx="85" cy="320" r="9" fill="none" stroke="#6b7280" stroke-width="1" opacity=".25"/>
+
+          <!-- 4. FILE DB — Rounded Rectangle — Purple (#a855f7) -->
+          <!-- positioned inline at top-right, shifted to keep balanced -->
+          <g filter="url(#fshadow)">
+            <rect x="46" y="131" width="78" height="40" rx="7" fill="url(#gfile)" stroke="#a855f7" stroke-width="1.8"/>
+            <text x="85" y="148" text-anchor="middle" font-size="9" fill="#d8b4fe" font-weight="800" font-family="system-ui">FILE DB</text>
+            <text x="85" y="162" text-anchor="middle" font-size="7.5" fill="#7c3aed" font-family="system-ui">3 pipelines</text>
+          </g>
+          <!-- gray status for file db -->
+          <!-- (no extra dot, shown within row) -->
+
+          <!-- ══════════════════════════════════════════════ -->
+          <!-- CSV PIPELINE NODES (20 total, 2 cols of 10)    -->
+          <!-- ══════════════════════════════════════════════ -->
+
+          <!-- col-A x=185, col-B x=255 -->
+          <!-- CAT nodes (#3b82f6) -->
+          <g font-size="7.5" font-family="system-ui" font-weight="700">
+            <!-- col A -->
+            <rect x="180" y="28" width="50" height="18" rx="3" fill="#0f1e3d" stroke="#3b82f6" stroke-width="1.3"/><text x="205" y="40" text-anchor="middle" fill="#93c5fd">CAT-01</text><circle cx="235" cy="37" r="3.5" fill="#22c55e"/>
+            <rect x="180" y="51" width="50" height="18" rx="3" fill="#0f1e3d" stroke="#3b82f6" stroke-width="1.3"/><text x="205" y="63" text-anchor="middle" fill="#93c5fd">CAT-02</text><circle cx="235" cy="60" r="3.5" fill="#22c55e"/>
+            <rect x="180" y="74" width="50" height="18" rx="3" fill="#0f1e3d" stroke="#3b82f6" stroke-width="1.3"/><text x="205" y="86" text-anchor="middle" fill="#93c5fd">CAT-03</text><circle cx="235" cy="83" r="3.5" fill="#22c55e"/>
+            <rect x="180" y="97" width="50" height="18" rx="3" fill="#0f1e3d" stroke="#3b82f6" stroke-width="1.3"/><text x="205" y="109" text-anchor="middle" fill="#93c5fd">CAT-04</text><circle cx="235" cy="106" r="3.5" fill="#ef4444"/>
+            <rect x="180" y="120" width="50" height="18" rx="3" fill="#0f1e3d" stroke="#3b82f6" stroke-width="1.3"/><text x="205" y="132" text-anchor="middle" fill="#93c5fd">CAT-05</text><circle cx="235" cy="129" r="3.5" fill="#22c55e"/>
+            <!-- RT nodes (#10b981) -->
+            <rect x="180" y="143" width="50" height="18" rx="3" fill="#0a2018" stroke="#10b981" stroke-width="1.3"/><text x="205" y="155" text-anchor="middle" fill="#6ee7b7">RT-01</text><circle cx="235" cy="152" r="3.5" fill="#22c55e"/>
+            <rect x="180" y="166" width="50" height="18" rx="3" fill="#0a2018" stroke="#10b981" stroke-width="1.3"/><text x="205" y="178" text-anchor="middle" fill="#6ee7b7">RT-02</text><circle cx="235" cy="175" r="3.5" fill="#fb923c"/>
+            <rect x="180" y="189" width="50" height="18" rx="3" fill="#0a2018" stroke="#10b981" stroke-width="1.3"/><text x="205" y="201" text-anchor="middle" fill="#6ee7b7">RT-03</text><circle cx="235" cy="198" r="3.5" fill="#22c55e"/>
+            <!-- YMS nodes (#f97316) -->
+            <rect x="180" y="212" width="50" height="18" rx="3" fill="#1c0e00" stroke="#f97316" stroke-width="1.3"/><text x="205" y="224" text-anchor="middle" fill="#fdba74">YMS-01</text><circle cx="235" cy="221" r="3.5" fill="#22c55e"/>
+            <rect x="180" y="235" width="50" height="18" rx="3" fill="#1c0e00" stroke="#f97316" stroke-width="1.3"/><text x="205" y="247" text-anchor="middle" fill="#fdba74">YMS-02</text><circle cx="235" cy="244" r="3.5" fill="#22c55e"/>
+            <!-- col B -->
+            <rect x="252" y="28" width="50" height="18" rx="3" fill="#0f1e3d" stroke="#3b82f6" stroke-width="1.3"/><text x="277" y="40" text-anchor="middle" fill="#93c5fd">CAT-06</text><circle cx="307" cy="37" r="3.5" fill="#22c55e"/>
+            <rect x="252" y="51" width="50" height="18" rx="3" fill="#0f1e3d" stroke="#3b82f6" stroke-width="1.3"/><text x="277" y="63" text-anchor="middle" fill="#93c5fd">CAT-07</text><circle cx="307" cy="60" r="3.5" fill="#22c55e"/>
+            <rect x="252" y="74" width="50" height="18" rx="3" fill="#0f1e3d" stroke="#3b82f6" stroke-width="1.3"/><text x="277" y="86" text-anchor="middle" fill="#93c5fd">CAT-08</text><circle cx="307" cy="83" r="3.5" fill="#22c55e"/>
+            <rect x="252" y="97" width="50" height="18" rx="3" fill="#0a2018" stroke="#10b981" stroke-width="1.3"/><text x="277" y="109" text-anchor="middle" fill="#6ee7b7">RT-04</text><circle cx="307" cy="106" r="3.5" fill="#22c55e"/>
+            <rect x="252" y="120" width="50" height="18" rx="3" fill="#0a2018" stroke="#10b981" stroke-width="1.3"/><text x="277" y="132" text-anchor="middle" fill="#6ee7b7">RT-05</text><circle cx="307" cy="129" r="3.5" fill="#22c55e"/>
+            <rect x="252" y="143" width="50" height="18" rx="3" fill="#1c0e00" stroke="#f97316" stroke-width="1.3"/><text x="277" y="155" text-anchor="middle" fill="#fdba74">YMS-03</text><circle cx="307" cy="152" r="3.5" fill="#fb923c"/>
+            <rect x="252" y="166" width="50" height="18" rx="3" fill="#1c0e00" stroke="#f97316" stroke-width="1.3"/><text x="277" y="178" text-anchor="middle" fill="#fdba74">YMS-04</text><circle cx="307" cy="175" r="3.5" fill="#22c55e"/>
+            <!-- FILE nodes (#a855f7) -->
+            <rect x="252" y="189" width="50" height="18" rx="3" fill="#160a2e" stroke="#a855f7" stroke-width="1.3"/><text x="277" y="201" text-anchor="middle" fill="#d8b4fe">FILE-01</text><circle cx="307" cy="198" r="3.5" fill="#22c55e"/>
+            <rect x="252" y="212" width="50" height="18" rx="3" fill="#160a2e" stroke="#a855f7" stroke-width="1.3"/><text x="277" y="224" text-anchor="middle" fill="#d8b4fe">FILE-02</text><circle cx="307" cy="221" r="3.5" fill="#22c55e"/>
+            <rect x="252" y="235" width="50" height="18" rx="3" fill="#160a2e" stroke="#a855f7" stroke-width="1.3"/><text x="277" y="247" text-anchor="middle" fill="#d8b4fe">FILE-03</text><circle cx="307" cy="244" r="3.5" fill="#22c55e"/>
+          </g>
+          <!-- +2 more placeholder -->
+          <rect x="200" y="259" width="90" height="16" rx="3" fill="#111827" stroke="#253040" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="245" y="270" text-anchor="middle" font-size="7.5" fill="#374151" font-family="system-ui">+2 more pipelines...</text>
+
+          <!-- ══════════════════════════════════════════════ -->
+          <!-- SOURCE DB → CSV CONNECTIONS                    -->
+          <!-- ══════════════════════════════════════════════ -->
+          <!-- Catalog → CAT-01..08 -->
+          <g stroke="#3b82f6" stroke-width=".8" fill="none" opacity=".45">
+            <path d="M121,55 C155,55 165,37 180,37"/>
+            <path d="M121,62 C155,62 165,60 180,60"/>
+            <path d="M121,68 C155,68 165,83 180,83"/>
+            <path d="M121,74 C155,74 165,106 180,106"/>
+            <path d="M121,80 C155,80 165,129 180,129"/>
+            <path d="M121,55 C160,55 220,37 252,37"/>
+            <path d="M121,62 C160,62 220,60 252,60"/>
+            <path d="M121,68 C160,68 220,83 252,83"/>
+          </g>
+          <!-- Realtime → RT-01..05 -->
+          <g stroke="#10b981" stroke-width=".8" fill="none" opacity=".45">
+            <path d="M123,175 C155,175 165,152 180,152"/>
+            <path d="M123,180 C155,180 165,175 180,175"/>
+            <path d="M123,185 C155,185 165,198 180,198"/>
+            <path d="M123,175 C160,175 220,106 252,106"/>
+            <path d="M123,180 C160,180 220,129 252,129"/>
+          </g>
+          <!-- File → FILE-01..03 -->
+          <g stroke="#a855f7" stroke-width=".8" fill="none" opacity=".45">
+            <path d="M124,145 C160,145 220,198 252,198"/>
+            <path d="M124,151 C160,151 220,221 252,221"/>
+            <path d="M124,157 C160,157 220,244 252,244"/>
+          </g>
+          <!-- YMS CDC → YMS-01..04 -->
+          <g stroke="#f97316" stroke-width=".8" fill="none" opacity=".45">
+            <path d="M109,274 C155,274 165,221 180,221"/>
+            <path d="M109,280 C155,280 165,244 180,244"/>
+            <path d="M109,274 C160,274 220,152 252,152"/>
+            <path d="M109,280 C160,280 220,175 252,175"/>
+          </g>
+
+          <!-- ══════════════════════════════════════════════ -->
+          <!-- CSV → MHUB (all 20 converging)                 -->
+          <!-- ══════════════════════════════════════════════ -->
+          <g stroke="#334155" stroke-width=".7" fill="none" opacity=".5">
+            <path d="M235,37  C360,37  400,170 415,170"/>
+            <path d="M235,60  C360,60  400,170 415,170"/>
+            <path d="M235,83  C360,83  400,170 415,170"/>
+            <path d="M235,106 C360,106 400,170 415,170"/>
+            <path d="M235,129 C360,129 400,170 415,170"/>
+            <path d="M235,152 C360,152 400,170 415,170"/>
+            <path d="M235,175 C360,175 400,170 415,170"/>
+            <path d="M235,198 C360,198 400,170 415,170"/>
+            <path d="M235,221 C360,221 400,170 415,170"/>
+            <path d="M235,244 C360,244 400,170 415,170"/>
+            <path d="M307,37  C365,37  400,170 415,170"/>
+            <path d="M307,60  C365,60  400,170 415,170"/>
+            <path d="M307,83  C365,83  400,170 415,170"/>
+            <path d="M307,106 C365,106 400,170 415,170"/>
+            <path d="M307,129 C365,129 400,170 415,170"/>
+            <path d="M307,152 C365,152 400,170 415,170"/>
+            <path d="M307,175 C365,175 400,170 415,170"/>
+            <path d="M307,198 C365,198 400,170 415,170"/>
+            <path d="M307,221 C365,221 400,170 415,170"/>
+            <path d="M307,244 C365,244 400,170 415,170"/>
+          </g>
+
+          <!-- ══════════════════════════════════════════════ -->
+          <!-- MAIN PIPELINE NODES                            -->
+          <!-- ══════════════════════════════════════════════ -->
+
+          <!-- mhub -->
+          <g filter="url(#fshadow)">
+            <rect x="415" y="152" width="70" height="44" rx="8" fill="#131c2e" stroke="#475569" stroke-width="1.8"/>
+            <text x="450" y="170" text-anchor="middle" font-size="11" fill="#e2e8f0" font-weight="800" font-family="system-ui">mhub</text>
+            <text x="450" y="183" text-anchor="middle" font-size="7.5" fill="#475569" font-family="system-ui">Message Broker</text>
+            <text x="450" y="193" text-anchor="middle" font-size="7" fill="#1e40af" font-family="system-ui">Kafka/RabbitMQ</text>
+          </g>
+          <circle cx="450" cy="206" r="5.5" fill="#22c55e" filter="url(#fg)"/>
+          <circle cx="450" cy="206" r="9" fill="none" stroke="#22c55e" stroke-width="1" opacity=".3"/>
+          <text x="450" y="221" text-anchor="middle" font-size="7" fill="#22c55e" font-family="system-ui">정상 09:45</text>
+
+          <!-- Arrow mhub → listener -->
+          <line x1="485" y1="174" x2="535" y2="174" stroke="#2d3f5e" stroke-width="1.5" marker-end="url(#am)"/>
+          <text x="510" y="168" text-anchor="middle" font-size="7" fill="#2d3f5e" font-family="system-ui">topic</text>
+
+          <!-- Message Listener -->
+          <g filter="url(#fshadow)">
+            <rect x="537" y="148" width="80" height="52" rx="8" fill="#131c2e" stroke="#475569" stroke-width="1.8"/>
+            <text x="577" y="167" text-anchor="middle" font-size="9.5" fill="#e2e8f0" font-weight="800" font-family="system-ui">Message</text>
+            <text x="577" y="180" text-anchor="middle" font-size="9.5" fill="#e2e8f0" font-weight="800" font-family="system-ui">Listener</text>
+            <text x="577" y="193" text-anchor="middle" font-size="7" fill="#475569" font-family="system-ui">Consumer Group</text>
+          </g>
+          <circle cx="577" cy="210" r="5.5" fill="#22c55e" filter="url(#fg)"/>
+          <circle cx="577" cy="210" r="9" fill="none" stroke="#22c55e" stroke-width="1" opacity=".3"/>
+          <text x="577" y="225" text-anchor="middle" font-size="7" fill="#22c55e" font-family="system-ui">정상 09:44</text>
+
+          <!-- Arrow listener → nifi -->
+          <line x1="617" y1="174" x2="662" y2="174" stroke="#2d3f5e" stroke-width="1.5" marker-end="url(#am)"/>
+          <text x="640" y="168" text-anchor="middle" font-size="7" fill="#2d3f5e" font-family="system-ui">stream</text>
+
+          <!-- Impala NiFi (with warning color) -->
+          <g filter="url(#fshadow)">
+            <rect x="664" y="145" width="86" height="58" rx="8" fill="#1a1400" stroke="#f59e0b" stroke-width="2"/>
+            <text x="707" y="164" text-anchor="middle" font-size="9.5" fill="#fcd34d" font-weight="800" font-family="system-ui">Impala NiFi</text>
+            <text x="707" y="177" text-anchor="middle" font-size="8" fill="#92400e" font-family="system-ui">parquet</text>
+            <text x="707" y="190" text-anchor="middle" font-size="7" fill="#78350f" font-family="system-ui">ETL / Ingest</text>
+            <text x="707" y="201" text-anchor="middle" font-size="7" fill="#f59e0b" font-family="system-ui">⚠ +9m 지연</text>
+          </g>
+          <circle cx="707" cy="214" r="5.5" fill="#f59e0b" filter="url(#fy)"/>
+          <circle cx="707" cy="214" r="9" fill="none" stroke="#f59e0b" stroke-width="1" opacity=".3"/>
+          <text x="707" y="229" text-anchor="middle" font-size="7" fill="#f59e0b" font-family="system-ui">지연 09:31</text>
+
+          <!-- Arrow nifi → refresh -->
+          <line x1="750" y1="174" x2="802" y2="174" stroke="#2d3f5e" stroke-width="1.5" marker-end="url(#am)"/>
+          <text x="776" y="168" text-anchor="middle" font-size="7" fill="#2d3f5e" font-family="system-ui">parquet</text>
+
+          <!-- Impala Refresh -->
+          <g filter="url(#fshadow)">
+            <rect x="804" y="148" width="90" height="52" rx="8" fill="#131c2e" stroke="#475569" stroke-width="1.8"/>
+            <text x="849" y="166" text-anchor="middle" font-size="9.5" fill="#e2e8f0" font-weight="800" font-family="system-ui">Impala</text>
+            <text x="849" y="179" text-anchor="middle" font-size="9.5" fill="#e2e8f0" font-weight="800" font-family="system-ui">Refresh</text>
+            <text x="849" y="193" text-anchor="middle" font-size="7" fill="#475569" font-family="system-ui">Metadata Sync</text>
+          </g>
+          <circle cx="849" cy="210" r="5.5" fill="#22c55e" filter="url(#fg)"/>
+          <circle cx="849" cy="210" r="9" fill="none" stroke="#22c55e" stroke-width="1" opacity=".3"/>
+          <text x="849" y="225" text-anchor="middle" font-size="7" fill="#22c55e" font-family="system-ui">정상 09:43</text>
+
+          <!-- Arrow refresh → client -->
+          <line x1="894" y1="174" x2="956" y2="174" stroke="#2d3f5e" stroke-width="1.5" marker-end="url(#am)"/>
+          <text x="925" y="168" text-anchor="middle" font-size="7" fill="#2d3f5e" font-family="system-ui">query API</text>
+
+          <!-- Client (with error color) -->
+          <g filter="url(#fshadow)">
+            <rect x="958" y="148" width="88" height="52" rx="8" fill="#1a0808" stroke="#ef4444" stroke-width="2"/>
+            <text x="1002" y="167" text-anchor="middle" font-size="9.5" fill="#fca5a5" font-weight="800" font-family="system-ui">Client</text>
+            <text x="1002" y="181" text-anchor="middle" font-size="8" fill="#7f1d1d" font-family="system-ui">BI / Analytics</text>
+            <text x="1002" y="193" text-anchor="middle" font-size="7" fill="#ef4444" font-family="system-ui">✗ 쿼리 장애</text>
+          </g>
+          <circle cx="1002" cy="210" r="5.5" fill="#ef4444" filter="url(#fr)"/>
+          <circle cx="1002" cy="210" r="9" fill="none" stroke="#ef4444" stroke-width="1" opacity=".3"/>
+          <text x="1002" y="225" text-anchor="middle" font-size="7" fill="#ef4444" font-family="system-ui">장애 09:18</text>
+
+          <!-- Status legend strip at bottom -->
+          <rect x="10" y="245" width="1080" height="88" rx="6" fill="#0d1220" stroke="#1a2236" stroke-width="1"/>
+          <text x="20" y="260" font-size="8" fill="#334155" font-weight="700" font-family="system-ui">PIPELINE STATUS SUMMARY</text>
+
+          <!-- Step stats boxes -->
+          <g font-family="system-ui" font-size="8">
+            <!-- Source DB -->
+            <rect x="20" y="265" width="100" height="56" rx="5" fill="#111827" stroke="#253040" stroke-width="1"/>
+            <text x="70" y="279" text-anchor="middle" font-size="7.5" fill="#6b7280" font-weight="700">SOURCE DB</text>
+            <circle cx="55" cy="296" r="5" fill="#6b7280"/>
+            <text x="70" y="300" text-anchor="middle" font-size="10" fill="#6b7280" font-weight="800">미확인</text>
+            <text x="70" y="313" text-anchor="middle" font-size="7" fill="#374151">상태 확인 불가</text>
+
+            <!-- CSV -->
+            <rect x="132" y="265" width="100" height="56" rx="5" fill="#111827" stroke="#253040" stroke-width="1"/>
+            <text x="182" y="279" text-anchor="middle" font-size="7.5" fill="#94a3b8" font-weight="700">CSV (20 pipes)</text>
+            <text x="165" y="299" text-anchor="middle" font-size="9" fill="#22c55e" font-weight="800">18</text>
+            <text x="165" y="311" text-anchor="middle" font-size="7" fill="#22c55e">정상</text>
+            <text x="188" y="299" text-anchor="middle" font-size="9" fill="#fb923c" font-weight="800">1</text>
+            <text x="188" y="311" text-anchor="middle" font-size="7" fill="#fb923c">지연</text>
+            <text x="210" y="299" text-anchor="middle" font-size="9" fill="#ef4444" font-weight="800">1</text>
+            <text x="210" y="311" text-anchor="middle" font-size="7" fill="#ef4444">실패</text>
+
+            <!-- mhub -->
+            <rect x="244" y="265" width="90" height="56" rx="5" fill="#111827" stroke="#253040" stroke-width="1"/>
+            <text x="289" y="279" text-anchor="middle" font-size="7.5" fill="#94a3b8" font-weight="700">MHUB</text>
+            <circle cx="289" cy="296" r="5" fill="#22c55e" filter="url(#fg)"/>
+            <text x="289" y="313" text-anchor="middle" font-size="9" fill="#22c55e" font-weight="800">정상</text>
+            <text x="289" y="315" text-anchor="middle" font-size="7" fill="#374151">lag: 0ms</text>
+
+            <!-- Listener -->
+            <rect x="346" y="265" width="90" height="56" rx="5" fill="#111827" stroke="#253040" stroke-width="1"/>
+            <text x="391" y="279" text-anchor="middle" font-size="7.5" fill="#94a3b8" font-weight="700">LISTENER</text>
+            <circle cx="391" cy="296" r="5" fill="#22c55e" filter="url(#fg)"/>
+            <text x="391" y="310" text-anchor="middle" font-size="9" fill="#22c55e" font-weight="800">정상</text>
+            <text x="391" y="316" text-anchor="middle" font-size="7" fill="#374151">offset: sync</text>
+
+            <!-- NiFi -->
+            <rect x="448" y="265" width="100" height="56" rx="5" fill="#111827" stroke="#f59e0b" stroke-width="1"/>
+            <text x="498" y="279" text-anchor="middle" font-size="7.5" fill="#fbbf24" font-weight="700">NIFI (PARQUET)</text>
+            <circle cx="498" cy="296" r="5" fill="#f59e0b" filter="url(#fy)"/>
+            <text x="498" y="311" text-anchor="middle" font-size="9" fill="#f59e0b" font-weight="800">지연 +9m</text>
+            <text x="498" y="315" text-anchor="middle" font-size="7" fill="#78350f">큐 적체 확인</text>
+
+            <!-- Impala Refresh -->
+            <rect x="560" y="265" width="100" height="56" rx="5" fill="#111827" stroke="#253040" stroke-width="1"/>
+            <text x="610" y="279" text-anchor="middle" font-size="7.5" fill="#94a3b8" font-weight="700">IMPALA REFRESH</text>
+            <circle cx="610" cy="296" r="5" fill="#22c55e" filter="url(#fg)"/>
+            <text x="610" y="311" text-anchor="middle" font-size="9" fill="#22c55e" font-weight="800">정상</text>
+            <text x="610" y="315" text-anchor="middle" font-size="7" fill="#374151">23 tables synced</text>
+
+            <!-- Client -->
+            <rect x="672" y="265" width="100" height="56" rx="5" fill="#111827" stroke="#ef4444" stroke-width="1"/>
+            <text x="722" y="279" text-anchor="middle" font-size="7.5" fill="#fca5a5" font-weight="700">CLIENT</text>
+            <circle cx="722" cy="296" r="5" fill="#ef4444" filter="url(#fr)"/>
+            <text x="722" y="311" text-anchor="middle" font-size="9" fill="#ef4444" font-weight="800">장애</text>
+            <text x="722" y="315" text-anchor="middle" font-size="7" fill="#7f1d1d">쿼리 timeout</text>
+          </g>
+
+          <!-- Overall health bar -->
+          <rect x="784" y="265" width="300" height="56" rx="5" fill="#111827" stroke="#253040" stroke-width="1"/>
+          <text x="934" y="279" text-anchor="middle" font-size="8" fill="#94a3b8" font-weight="700" font-family="system-ui">파이프라인 전체 상태</text>
+          <rect x="794" y="286" width="280" height="10" rx="5" fill="#1e293b"/>
+          <rect x="794" y="286" width="218" height="10" rx="5" fill="#22c55e" opacity=".8"/>
+          <text x="794" y="309" font-size="7.5" fill="#22c55e" font-family="system-ui">정상: 78%</text>
+          <text x="855" y="309" font-size="7.5" fill="#fb923c" font-family="system-ui">지연: 13%</text>
+          <text x="908" y="309" font-size="7.5" fill="#ef4444" font-family="system-ui">실패: 9%</text>
+          <text x="934" y="322" text-anchor="middle" font-size="8" fill="#374151" font-family="system-ui" font-weight="700">Overall Health: 78/100</text>
+        </svg>
+      </div>
+      <div class="legend">
+        <div class="lg-item"><div class="lg-circle" style="background:var(--cat)"></div>Catalog DB</div>
+        <div class="lg-item"><div class="lg-diamond" style="background:var(--rt)"></div>Realtime DB</div>
+        <div class="lg-item"><div class="lg-hex" style="background:var(--yms)"></div>YMS CDC</div>
+        <div class="lg-item"><div class="lg-rect" style="background:var(--file)"></div>File DB</div>
+        <span style="color:var(--text3);margin:0 4px">|</span>
+        <div class="lg-item"><div class="lg-circle" style="background:var(--ok)"></div>정상</div>
+        <div class="lg-item"><div class="lg-circle" style="background:var(--delay)"></div>지연</div>
+        <div class="lg-item"><div class="lg-circle" style="background:var(--err)"></div>장애</div>
+        <div class="lg-item"><div class="lg-circle" style="background:var(--unknown)"></div>미확인 (원천 DB)</div>
+      </div>
+    </div>
+
+    <!-- ─── Pipeline Execution Timeline ──────────────────── -->
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title"><span class="card-icon">⏱</span>Pipeline 실행 이력 (최근 24시간)</div>
+        <div class="card-sub">각 칸 = 1시간 구간 · 색상: 성공 / 지연 / 실패 / 누락</div>
+      </div>
+      <div class="tl-wrap" id="tl-wrap"></div>
+      <div class="tl-stat-legend">
+        <div class="tl-sl"><div class="tl-sl-box" style="background:var(--ok)"></div>성공</div>
+        <div class="tl-sl"><div class="tl-sl-box" style="background:var(--delay)"></div>지연</div>
+        <div class="tl-sl"><div class="tl-sl-box" style="background:var(--err)"></div>실패</div>
+        <div class="tl-sl"><div class="tl-sl-box" style="background:#1c2840;border:1px solid #2d3f5a"></div>누락</div>
+        <div class="tl-sl"><div class="tl-sl-box" style="background:transparent"></div>비활성 구간</div>
+      </div>
+    </div>
+
+  </div><!-- /left-col -->
+
+  <!-- ─── RIGHT SIDEBAR ─────────────────────────────────── -->
+  <div class="sidebar">
+
+    <!-- Active Alerts -->
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title"><span class="card-icon">🔔</span>활성 알림</div>
+        <div class="alert-chip" style="font-size:.68rem;padding:2px 8px"><div class="alert-chip-dot"></div>3건</div>
+      </div>
+      <div class="card-body">
+        <div class="alert-item crit">
+          <div class="alert-title">CAT-04 파이프라인 실패</div>
+          <div class="alert-desc">CSV 생성 중 DB 연결 오류 (ORA-12541)</div>
+          <div class="alert-time">09:18 · Critical · 29분 경과</div>
+        </div>
+        <div class="alert-item warn">
+          <div class="alert-title">Impala NiFi 처리 지연 경보</div>
+          <div class="alert-desc">현재 처리 지연 +9분 (SLA 임계치 10분)</div>
+          <div class="alert-time">09:31 · Warning · 16분 경과</div>
+        </div>
+        <div class="alert-item warn">
+          <div class="alert-title">RT-02 데이터 수신 지연</div>
+          <div class="alert-desc">마지막 heartbeat 이후 32분 경과</div>
+          <div class="alert-time">09:15 · Warning · 32분 경과</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLA Compliance -->
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title"><span class="card-icon">📊</span>SLA 준수율</div>
+        <div class="card-sub">이번달 기준</div>
+      </div>
+      <div class="card-body">
+        <div class="sla-grid">
+          <div class="sla-item">
+            <div class="sla-name">Catalog</div>
+            <div class="sla-val" style="color:var(--ok)">96.2%</div>
+            <div class="sla-bar-bg"><div class="sla-bar-fill" style="width:96%;background:var(--ok)"></div></div>
+          </div>
+          <div class="sla-item">
+            <div class="sla-name">Realtime</div>
+            <div class="sla-val" style="color:var(--warn)">84.1%</div>
+            <div class="sla-bar-bg"><div class="sla-bar-fill" style="width:84%;background:var(--warn)"></div></div>
+          </div>
+          <div class="sla-item">
+            <div class="sla-name">YMS CDC</div>
+            <div class="sla-val" style="color:var(--ok)">91.8%</div>
+            <div class="sla-bar-bg"><div class="sla-bar-fill" style="width:92%;background:var(--ok)"></div></div>
+          </div>
+          <div class="sla-item">
+            <div class="sla-name">File</div>
+            <div class="sla-val" style="color:var(--ok)">98.5%</div>
+            <div class="sla-bar-bg"><div class="sla-bar-fill" style="width:98%;background:var(--ok)"></div></div>
+          </div>
+        </div>
+        <canvas id="slaChart" style="max-height:140px"></canvas>
+      </div>
+    </div>
+
+    <!-- Data Freshness -->
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title"><span class="card-icon">💧</span>데이터 신선도</div>
+      </div>
+      <div class="card-body">
+        <div class="fresh-item"><span class="fresh-name">Catalog (최신)</span><span class="fresh-badge stale">2h 14m</span></div>
+        <div class="fresh-item"><span class="fresh-name">Realtime</span><span class="fresh-badge stale">32m</span></div>
+        <div class="fresh-item"><span class="fresh-name">YMS CDC</span><span class="fresh-badge fresh">8m</span></div>
+        <div class="fresh-item"><span class="fresh-name">File</span><span class="fresh-badge fresh">4m</span></div>
+        <div class="fresh-item"><span class="fresh-name">Impala (최종)</span><span class="fresh-badge old">3h 02m</span></div>
+      </div>
+    </div>
+
+    <!-- Health Score Radar -->
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title"><span class="card-icon">❤️</span>Pipeline Health Score</div>
+      </div>
+      <div class="card-body">
+        <canvas id="healthChart" style="max-height:150px"></canvas>
+      </div>
+    </div>
+
+  </div><!-- /sidebar -->
+</div><!-- /main-grid -->
+
+<!-- ═══ BOTTOM 3-COL ═════════════════════════════════════ -->
+<div class="bot-grid">
+
+  <!-- Data Volume Trend -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-title"><span class="card-icon">📈</span>데이터 볼륨 트렌드 (7일)</div>
+      <div class="card-sub">단위: GB</div>
+    </div>
+    <div class="card-body">
+      <canvas id="volChart" style="max-height:150px"></canvas>
+    </div>
+  </div>
+
+  <!-- Error Distribution (by hour) -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-title"><span class="card-icon">🗓</span>에러/지연 발생 패턴 (시간대별)</div>
+      <div class="card-sub">최근 7일 평균</div>
+    </div>
+    <div class="card-body">
+      <canvas id="errChart" style="max-height:150px"></canvas>
+    </div>
+  </div>
+
+  <!-- Event Log -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-title"><span class="card-icon">📋</span>최근 이벤트 로그</div>
+    </div>
+    <div class="card-body" style="padding:8px 12px;max-height:190px;overflow-y:auto">
+      <div class="log-item"><span class="log-time">09:47</span><span class="log-icon" style="color:var(--ok)">✓</span><span class="log-msg">FILE-03 완료 (0.8GB, 2.1m)</span></div>
+      <div class="log-item"><span class="log-time">09:43</span><span class="log-icon" style="color:var(--ok)">✓</span><span class="log-msg">Impala Refresh 완료 (23 테이블)</span></div>
+      <div class="log-item"><span class="log-time">09:38</span><span class="log-icon" style="color:var(--delay)">⚠</span><span class="log-msg">YMS-03 처리 지연 감지 (+5m)</span></div>
+      <div class="log-item"><span class="log-time">09:31</span><span class="log-icon" style="color:var(--delay)">⚠</span><span class="log-msg">NiFi 지연 알림 발송 (Slack)</span></div>
+      <div class="log-item"><span class="log-time">09:27</span><span class="log-icon" style="color:var(--ok)">✓</span><span class="log-msg">CAT-01,02,03 배치 완료 (12.4GB)</span></div>
+      <div class="log-item"><span class="log-time">09:18</span><span class="log-icon" style="color:var(--err)">✗</span><span class="log-msg">CAT-04 실패: ORA-12541 DB연결 오류</span></div>
+      <div class="log-item"><span class="log-time">09:15</span><span class="log-icon" style="color:var(--delay)">⚠</span><span class="log-msg">RT-02 heartbeat 누락 감지</span></div>
+      <div class="log-item"><span class="log-time">09:00</span><span class="log-icon" style="color:var(--accent)">▶</span><span class="log-msg">정시 배치 스케줄 시작 (20개 파이프라인)</span></div>
+      <div class="log-item"><span class="log-time">08:47</span><span class="log-icon" style="color:var(--accent)">i</span><span class="log-msg">스키마 변경 감지: catalog.items (col 추가)</span></div>
+      <div class="log-item"><span class="log-time">08:00</span><span class="log-icon" style="color:var(--ok)">✓</span><span class="log-msg">전체 파이프라인 정상 완료 (96.8GB)</span></div>
+    </div>
+  </div>
+
+</div><!-- /bot-grid -->
+</div><!-- /wrap -->
+
+<script>
+// ─── TIMELINE RENDERER ────────────────────────────────────
+const pipes = [
+  { n:'CAT-01', t:'cat', sch:1 }, { n:'CAT-02', t:'cat', sch:1 },
+  { n:'CAT-03', t:'cat', sch:2 }, { n:'CAT-04', t:'cat', sch:1 },
+  { n:'CAT-05', t:'cat', sch:1 }, { n:'CAT-06', t:'cat', sch:2 },
+  { n:'CAT-07', t:'cat', sch:2 }, { n:'CAT-08', t:'cat', sch:1 },
+  { n:'RT-01',  t:'rt',  sch:0 }, { n:'RT-02',  t:'rt',  sch:0 },
+  { n:'RT-03',  t:'rt',  sch:0 }, { n:'RT-04',  t:'rt',  sch:0 },
+  { n:'RT-05',  t:'rt',  sch:0 },
+  { n:'YMS-01', t:'yms', sch:1 }, { n:'YMS-02', t:'yms', sch:1 },
+  { n:'YMS-03', t:'yms', sch:2 }, { n:'YMS-04', t:'yms', sch:2 },
+  { n:'FILE-01',t:'file',sch:3 }, { n:'FILE-02',t:'file',sch:3 },
+  { n:'FILE-03',t:'file',sch:3 },
+];
+const typeColor = { cat:'#3b82f6', rt:'#10b981', yms:'#f97316', file:'#a855f7' };
+
+function fakeRng(seed) {
+  let s = seed % 1000003;
+  s = (s * 1103515245 + 12345) & 0x7fffffff;
+  return (s % 100);
+}
+function getStatus(p, h) {
+  const { n, sch } = p;
+  if (sch === 2 && h % 2 !== 0) return 'skip';
+  if (sch === 3 && h % 3 !== 0) return 'skip';
+  if (n === 'CAT-04' && h >= 9) return h === 9 ? 'err' : 'miss';
+  if (n === 'RT-02'  && h >= 8) return 'delay';
+  if (n === 'YMS-03' && h === 8) return 'delay';
+  const r = fakeRng(n.charCodeAt(0) * 13 + n.charCodeAt(n.length-1) * 7 + h * 31);
+  if (r < 78) return 'ok';
+  if (r < 88) return 'delay';
+  if (r < 93) return 'err';
+  return 'miss';
+}
+function buildTimeline() {
+  const hrs = Array.from({length:24}, (_,i) => i);
+  let html = '<div class="tl-hdr">';
+  hrs.forEach(h => { html += `<div class="tl-hr">${String(h).padStart(2,'0')}</div>`; });
+  html += '</div>';
+  pipes.forEach(p => {
+    const c = typeColor[p.t];
+    html += `<div class="tl-row"><div class="tl-lbl" style="color:${c}">${p.n}</div><div class="tl-bars">`;
+    hrs.forEach(h => {
+      const s = getStatus(p, h);
+      html += `<div class="tl-cell ${s}" title="${p.n} ${String(h).padStart(2,'0')}:00 — ${s}"></div>`;
+    });
+    html += '</div></div>';
+  });
+  document.getElementById('tl-wrap').innerHTML = html;
+}
+buildTimeline();
+
+// ─── CHART.JS DEFAULTS ───────────────────────────────────
+Chart.defaults.color = '#8892b0';
+Chart.defaults.borderColor = '#1a2236';
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+
+// SLA Donut
+new Chart(document.getElementById('slaChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['정상','지연','실패','누락'],
+    datasets: [{ data:[75,13,8,4], backgroundColor:['#22c55e','#fb923c','#ef4444','#374151'], borderColor:'#111827', borderWidth:2 }]
+  },
+  options: {
+    cutout:'68%', responsive:true,
+    plugins: {
+      legend:{ position:'right', labels:{ font:{size:9}, boxWidth:10, padding:7 }},
+      tooltip:{ callbacks:{ label: c => ` ${c.label}: ${c.parsed}%` }}
+    }
+  }
+});
+
+// Health Radar
+new Chart(document.getElementById('healthChart'), {
+  type: 'radar',
+  data: {
+    labels:['가용성','신선도','완전성','정확도','처리속도'],
+    datasets:[{
+      label:'Health',
+      data:[92,78,95,88,82],
+      backgroundColor:'rgba(99,102,241,.15)',
+      borderColor:'#6366f1',
+      pointBackgroundColor:'#6366f1',
+      pointBorderColor:'#111827',
+      pointBorderWidth:2,
+      borderWidth:2
+    }]
+  },
+  options: {
+    responsive:true,
+    scales:{ r:{
+      min:0, max:100,
+      ticks:{ stepSize:25, font:{size:7}, backdropColor:'transparent' },
+      grid:{ color:'#1a2236' },
+      pointLabels:{ font:{size:9}, color:'#8892b0' }
+    }},
+    plugins:{ legend:{ display:false }}
+  }
+});
+
+// Volume Stacked Bar
+new Chart(document.getElementById('volChart'), {
+  type:'bar',
+  data:{
+    labels:['3/3','3/4','3/5','3/6','3/7','3/8','3/9'],
+    datasets:[
+      { label:'Catalog',  data:[42,38,45,41,47,44,23], backgroundColor:'rgba(59,130,246,.75)',  borderRadius:3, stack:'v' },
+      { label:'Realtime', data:[128,134,121,140,138,142,67], backgroundColor:'rgba(16,185,129,.75)', borderRadius:3, stack:'v' },
+      { label:'YMS CDC',  data:[18,21,19,22,20,17,9],   backgroundColor:'rgba(249,115,22,.75)',  borderRadius:3, stack:'v' },
+      { label:'File',     data:[8,9,7,10,8,9,4],         backgroundColor:'rgba(168,85,247,.75)',  borderRadius:3, stack:'v' },
+    ]
+  },
+  options:{
+    responsive:true,
+    scales:{
+      x:{ grid:{display:false}, ticks:{font:{size:9}} },
+      y:{ ticks:{font:{size:9}}, title:{display:true,text:'GB',font:{size:9},color:'#4a5568'} }
+    },
+    plugins:{ legend:{ labels:{font:{size:9},boxWidth:10,padding:6} }}
+  }
+});
+
+// Error Distribution Bar
+new Chart(document.getElementById('errChart'), {
+  type:'bar',
+  data:{
+    labels:['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23'],
+    datasets:[
+      { label:'실패', data:[0,0,1,0,0,0,1,0,3,1,0,0,0,1,0,2,0,0,1,0,0,0,0,1], backgroundColor:'rgba(239,68,68,.8)',  borderRadius:2, stack:'e' },
+      { label:'지연', data:[1,0,0,1,0,1,0,2,1,2,1,0,1,0,1,1,0,2,1,0,1,0,1,0], backgroundColor:'rgba(251,146,60,.8)', borderRadius:2, stack:'e' }
+    ]
+  },
+  options:{
+    responsive:true,
+    scales:{
+      x:{ grid:{display:false}, ticks:{font:{size:7}, maxRotation:0}, title:{display:true,text:'시간대(시)',font:{size:8},color:'#4a5568'} },
+      y:{ ticks:{font:{size:9},stepSize:1}, title:{display:true,text:'건',font:{size:9},color:'#4a5568'} }
+    },
+    plugins:{ legend:{ labels:{font:{size:9},boxWidth:10,padding:6} }}
+  }
+});
+</script>
+</body>
+</html>
