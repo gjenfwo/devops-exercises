@@ -157,6 +157,136 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
 .tl-retry-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:7px;color:#fff;line-height:1;pointer-events:none;font-weight:800}
 .tl-no-result{padding:20px;text-align:center;color:var(--text3);font-size:.8rem}
 .tl-sl-retry{display:inline-block;width:20px;height:12px;border-radius:2px;background:linear-gradient(to right,#ef4444 0% 38%,#1e2d3f 38% 62%,#22c55e 62% 100%);vertical-align:middle}
+
+/* ─── VIEW SWITCHER ──────────────────────────────────────── */
+.view-switcher{display:flex;gap:0;margin-bottom:18px;border-bottom:2px solid var(--border);padding-bottom:0}
+.view-tab-main{padding:10px 22px;font-size:.82rem;font-weight:700;border:none;background:transparent;color:var(--text3);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;font-family:inherit;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.view-tab-main:hover{color:var(--text2)}
+.view-tab-main.active{color:var(--text);border-bottom-color:var(--accent)}
+.view-tab-main[data-view="owner"].active{border-bottom-color:#3b82f6;color:#93c5fd}
+.view-tab-main[data-view="table-owner"].active{border-bottom-color:#10b981;color:#6ee7b7}
+.view-tab-main[data-view="user"].active{border-bottom-color:#ec4899;color:#f9a8d4}
+.view-panel{display:none}
+.view-panel.active{display:block}
+
+/* ─── TABLE OWNER VIEW ───────────────────────────────────── */
+.to-selector-bar{display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;flex-wrap:wrap}
+.to-select{background:var(--bg-elevated);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 12px;font-size:.8rem;font-family:inherit;cursor:pointer;min-width:220px;outline:none}
+.to-select:focus{border-color:var(--accent)}
+.to-meta{font-size:.72rem;color:var(--text3);display:flex;align-items:center;gap:4px}
+.to-meta-val{color:var(--text2);font-weight:600}
+.to-tier{padding:2px 9px;border-radius:10px;font-size:.65rem;font-weight:800}
+.to-tier.gold{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.3)}
+.to-tier.silver{background:rgba(148,163,184,.1);color:#94a3b8;border:1px solid rgba(148,163,184,.2)}
+.to-tier.bronze{background:rgba(180,120,80,.1);color:#b47850;border:1px solid rgba(180,120,80,.2)}
+.to-main-grid{display:grid;grid-template-columns:1fr 300px;gap:14px;margin-bottom:14px}
+.to-left{display:flex;flex-direction:column;gap:14px}
+.to-right{display:flex;flex-direction:column;gap:14px}
+
+/* Mini lineage */
+.mini-lineage{display:flex;align-items:flex-start;gap:0;padding:14px 10px;overflow-x:auto}
+.ml-node{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:82px}
+.ml-box{padding:7px 8px;border-radius:6px;font-size:.63rem;font-weight:700;text-align:center;border:1px solid;white-space:nowrap;width:74px;line-height:1.3}
+.ml-box.this{box-shadow:0 0 0 2px var(--accent),0 0 16px rgba(99,102,241,.35)}
+.ml-status-dot{width:7px;height:7px;border-radius:50%;margin-top:1px}
+.ml-label{font-size:.57rem;color:var(--text3);text-align:center;max-width:74px;line-height:1.2}
+.ml-arrow{font-size:.85rem;color:var(--text3);margin:0 3px;align-self:center;padding-bottom:22px;flex-shrink:0}
+
+/* Exec history */
+.exec-table{width:100%;border-collapse:collapse;font-size:.7rem}
+.exec-table th{font-size:.63rem;color:var(--text3);font-weight:700;text-transform:uppercase;padding:5px 8px;border-bottom:1px solid var(--border);text-align:left;letter-spacing:.4px}
+.exec-table td{padding:5px 8px;border-bottom:1px solid var(--border-dim);color:var(--text2)}
+.exec-table tr:last-child td{border-bottom:none}
+.exec-table tr:hover td{background:var(--bg-elevated);cursor:default}
+.exec-status{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border-radius:10px;font-size:.62rem;font-weight:700}
+.exec-status.ok{background:rgba(34,197,94,.1);color:var(--ok)}
+.exec-status.delay{background:rgba(251,146,60,.1);color:var(--delay)}
+.exec-status.err{background:rgba(239,68,68,.1);color:var(--err)}
+.exec-status.retry{background:rgba(99,102,241,.1);color:var(--accent)}
+
+/* Quality */
+.qual-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-dim)}
+.qual-item:last-child{border-bottom:none}
+.qual-left{display:flex;flex-direction:column;gap:2px}
+.qual-name{font-size:.7rem;color:var(--text2)}
+.qual-bar-bg{width:80px;height:5px;background:#1a2236;border-radius:3px;overflow:hidden}
+.qual-bar-fill{height:100%;border-radius:3px}
+.qual-score{font-size:.85rem;font-weight:800}
+
+/* Schema log */
+.schema-item{padding:7px 0;border-bottom:1px solid var(--border-dim);display:flex;gap:7px;align-items:flex-start}
+.schema-item:last-child{border-bottom:none}
+.schema-time{font-size:.62rem;color:var(--text3);white-space:nowrap;min-width:42px}
+.schema-badge{font-size:.6rem;padding:1px 6px;border-radius:4px;font-weight:700;white-space:nowrap;flex-shrink:0;margin-top:1px}
+.schema-badge.add{background:rgba(34,197,94,.12);color:var(--ok)}
+.schema-badge.mod{background:rgba(245,158,11,.12);color:var(--warn)}
+.schema-badge.del{background:rgba(239,68,68,.12);color:var(--err)}
+.schema-msg{font-size:.67rem;color:var(--text2);line-height:1.4}
+
+/* Consumers */
+.consumer-item{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--bg-elevated);border-radius:6px;margin-bottom:4px}
+.consumer-name{font-size:.72rem;color:var(--text2);display:flex;align-items:center;gap:6px}
+.consumer-type{font-size:.6rem;padding:1px 6px;border-radius:3px;font-weight:700}
+.consumer-type.app{background:rgba(99,102,241,.15);color:var(--accent)}
+.consumer-type.dash{background:rgba(16,185,129,.15);color:var(--rt)}
+.consumer-type.api{background:rgba(245,158,11,.15);color:var(--warn)}
+.consumer-qps{font-size:.65rem;color:var(--text3)}
+
+/* ─── DATATABLE USER VIEW ────────────────────────────────── */
+.user-search-wrap{margin-bottom:16px}
+.user-search-input{width:100%;max-width:520px;background:var(--bg-card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:11px 18px;font-size:.88rem;font-family:inherit;outline:none}
+.user-search-input:focus{border-color:var(--accent)}
+.user-search-input::placeholder{color:var(--text3)}
+
+.user-status-card{padding:22px 26px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:14px}
+.user-status-left{display:flex;align-items:center;gap:18px}
+.user-status-badge{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0}
+.user-status-badge.ok{background:rgba(34,197,94,.12);border:2px solid rgba(34,197,94,.4)}
+.user-status-badge.warn{background:rgba(245,158,11,.12);border:2px solid rgba(245,158,11,.4)}
+.user-status-badge.err{background:rgba(239,68,68,.12);border:2px solid rgba(239,68,68,.4)}
+.user-status-title{font-size:1.1rem;font-weight:800;color:var(--text);margin-bottom:3px}
+.user-status-sub{font-size:.75rem;color:var(--text3)}
+.user-status-pills{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+.user-pill{padding:3px 10px;border-radius:12px;font-size:.67rem;font-weight:700;border:1px solid}
+.user-status-right{display:flex;gap:20px;flex-wrap:wrap}
+.user-stat-item{text-align:center}
+.user-stat-val{font-size:1.05rem;font-weight:800;color:var(--text);display:block}
+.user-stat-lbl{font-size:.63rem;color:var(--text3);display:block;margin-top:2px}
+
+.user-3grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+.user-freshness-track{height:10px;background:#1a2236;border-radius:5px;overflow:hidden;margin:10px 0 6px}
+.user-freshness-fill{height:100%;border-radius:5px}
+.user-freshness-labels{display:flex;justify-content:space-between;font-size:.62rem;color:var(--text3)}
+
+.user-qual-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border-dim)}
+.user-qual-row:last-child{border-bottom:none}
+.user-qual-name{font-size:.7rem;color:var(--text2)}
+.user-qual-right{display:flex;align-items:center;gap:8px}
+.user-qual-val{font-size:.78rem;font-weight:700}
+.user-qual-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+.user-query-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.user-query-label{font-size:.67rem;color:var(--text3);width:50px;text-align:right;flex-shrink:0}
+.user-query-bar-bg{flex:1;height:8px;background:#1a2236;border-radius:4px;overflow:hidden}
+.user-query-bar-fill{height:100%;border-radius:4px;background:var(--accent)}
+.user-query-val{font-size:.65rem;color:var(--text2);width:42px;text-align:right;flex-shrink:0}
+
+.user-issue-item{padding:8px 12px;border-left:3px solid;border-radius:0 6px 6px 0;background:var(--bg-elevated);margin-bottom:6px;display:flex;justify-content:space-between;align-items:flex-start}
+.user-issue-item.warn{border-color:var(--warn)}
+.user-issue-item.info{border-color:var(--accent)}
+.user-issue-item.ok{border-color:var(--ok)}
+.user-issue-text{font-size:.72rem;color:var(--text2)}
+.user-issue-time{font-size:.62rem;color:var(--text3);white-space:nowrap;margin-left:8px}
+.user-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.user-btn{padding:7px 16px;border-radius:6px;font-size:.75rem;font-weight:700;border:1px solid;cursor:pointer;font-family:inherit;transition:all .15s}
+.user-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.user-btn.primary:hover{opacity:.85}
+.user-btn.outline{background:transparent;border-color:var(--border);color:var(--text2)}
+.user-btn.outline:hover{border-color:var(--accent);color:var(--text)}
+.user-owner-card{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--bg-elevated);border-radius:8px;border:1px solid var(--border);margin-top:8px}
+.user-owner-avatar{width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+.user-owner-name{font-size:.78rem;font-weight:700;color:var(--text)}
+.user-owner-role{font-size:.65rem;color:var(--text3)}
 </style>
 </head>
 <body>
@@ -177,6 +307,15 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
   </div>
 </div>
 
+<!-- ═══ VIEW SWITCHER ════════════════════════════════════════ -->
+<div class="view-switcher">
+  <button class="view-tab-main active" data-view="owner" onclick="switchView('owner')">🏗 Datalake Owner</button>
+  <button class="view-tab-main" data-view="table-owner" onclick="switchView('table-owner')">📦 Datatable Owner</button>
+  <button class="view-tab-main" data-view="user" onclick="switchView('user')">👤 Datatable User</button>
+</div>
+
+<!-- ═══ VIEW: DATALAKE OWNER ═════════════════════════════════ -->
+<div id="view-owner" class="view-panel active">
 <!-- ═══ KPI CARDS ════════════════════════════════════════════ -->
 <div class="kpi-row">
   <div class="kpi ok">
@@ -740,6 +879,117 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
   </div>
 
 </div><!-- /bot-grid -->
+</div><!-- /view-owner -->
+
+<!-- ═══ VIEW: DATATABLE OWNER ════════════════════════════════ -->
+<div id="view-table-owner" class="view-panel">
+
+  <!-- KPI row (table-specific) -->
+  <div class="kpi-row" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px" id="to-kpi-row">
+    <div class="kpi ok"><div class="kpi-lbl">마지막 갱신</div><div class="kpi-val" style="font-size:1.45rem" id="to-k-refresh">09:43</div><div class="kpi-sub" id="to-k-refresh-sub">7분 전</div><div class="kpi-badge up">▲ SLA 준수</div></div>
+    <div class="kpi info"><div class="kpi-lbl">오늘 처리 건수</div><div class="kpi-val" id="to-k-rows">2.8M</div><div class="kpi-sub" id="to-k-rows-sub">어제比 +1.2%</div><div class="kpi-badge up">▲ 정상 증가</div></div>
+    <div class="kpi ok"><div class="kpi-lbl">업스트림 상태</div><div class="kpi-val" style="font-size:1.45rem" id="to-k-upstream">3/3</div><div class="kpi-sub">정상 동작 중</div><div class="kpi-badge up">● 모두 정상</div></div>
+    <div class="kpi gray"><div class="kpi-lbl">다운스트림 사용처</div><div class="kpi-val" style="font-size:1.45rem" id="to-k-downstream">5</div><div class="kpi-sub">앱/대시보드 연결</div><div class="kpi-badge neu">● 사용 중</div></div>
+  </div>
+
+  <!-- Table selector bar -->
+  <div class="to-selector-bar">
+    <select class="to-select" id="to-table-select" onchange="renderTableOwnerView()">
+      <option value="catalog.items">catalog.items</option>
+      <option value="catalog.orders">catalog.orders</option>
+      <option value="realtime.events">realtime.events</option>
+      <option value="yms.shipments">yms.shipments</option>
+      <option value="file.transactions">file.transactions</option>
+    </select>
+    <div class="to-meta">Owner: <span class="to-meta-val" id="to-meta-owner">김데이터팀</span></div>
+    <div class="to-meta">파이프라인: <span class="to-meta-val" id="to-meta-pipe">CAT-01</span></div>
+    <div class="to-meta">SLA: <span class="to-meta-val" id="to-meta-sla">99.5%</span></div>
+    <span class="to-tier gold" id="to-meta-tier">GOLD</span>
+    <div class="to-meta" style="margin-left:auto">담당: <span class="to-meta-val" id="to-meta-email">data-catalog@company.com</span></div>
+  </div>
+
+  <div class="to-main-grid">
+    <div class="to-left">
+      <!-- Mini Lineage -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title"><span class="card-icon">🔗</span>테이블 데이터 계보</div>
+          <div class="card-sub">업스트림 의존성 → 대상 테이블 → 다운스트림 소비처</div>
+        </div>
+        <div style="padding:14px 16px;overflow-x:auto">
+          <div class="mini-lineage" id="to-lineage"></div>
+        </div>
+      </div>
+
+      <!-- Execution History -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title"><span class="card-icon">📋</span>최근 실행 이력</div>
+          <div class="card-sub">최근 10회 실행 기록</div>
+        </div>
+        <div style="padding:8px 14px">
+          <table class="exec-table" id="to-exec-table">
+            <thead><tr><th>실행 시각</th><th>소요 시간</th><th>처리 건수</th><th>상태</th><th>비고</th></tr></thead>
+            <tbody id="to-exec-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="to-right">
+      <!-- Data Quality -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title"><span class="card-icon">🎯</span>데이터 품질 점수</div>
+          <div class="card-sub" id="to-quality-updated">최근 검증: 09:43</div>
+        </div>
+        <div class="card-body" id="to-quality"></div>
+      </div>
+
+      <!-- Schema Changes -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title"><span class="card-icon">📐</span>스키마 변경 이력</div>
+        </div>
+        <div class="card-body" style="padding:8px 14px" id="to-schema"></div>
+      </div>
+
+      <!-- Downstream Consumers -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title"><span class="card-icon">📡</span>다운스트림 사용처</div>
+          <div class="card-sub">현재 연결된 소비처</div>
+        </div>
+        <div class="card-body" id="to-consumers"></div>
+      </div>
+    </div>
+  </div>
+</div><!-- /view-table-owner -->
+
+<!-- ═══ VIEW: DATATABLE USER ══════════════════════════════════ -->
+<div id="view-user" class="view-panel">
+
+  <!-- Search -->
+  <div class="user-search-wrap">
+    <input class="user-search-input" type="text" id="user-table-input"
+      placeholder="🔍 테이블명 검색 (예: catalog.items, realtime.events)"
+      list="user-table-list" oninput="renderUserView(this.value)">
+    <datalist id="user-table-list">
+      <option value="catalog.items"><option value="catalog.orders">
+      <option value="realtime.events"><option value="yms.shipments"><option value="file.transactions">
+    </datalist>
+  </div>
+
+  <div id="user-view-content">
+    <!-- initial hint -->
+    <div style="text-align:center;padding:60px 20px;color:var(--text3)">
+      <div style="font-size:2.5rem;margin-bottom:12px">🔍</div>
+      <div style="font-size:.9rem">테이블명을 입력하면 데이터 현황을 확인할 수 있습니다</div>
+      <div style="font-size:.75rem;margin-top:6px">catalog.items / realtime.events / yms.shipments / file.transactions</div>
+    </div>
+  </div>
+</div><!-- /view-user -->
+
 </div><!-- /wrap -->
 
 <script>
@@ -929,6 +1179,536 @@ function buildTimeline() {
   });
 
   document.getElementById('tl-wrap').innerHTML = html;
+}
+
+// ─── VIEW SWITCHER ─────────────────────────────────────────
+function switchView(view) {
+  document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.view-tab-main').forEach(t => t.classList.toggle('active', t.dataset.view === view));
+  document.getElementById('view-' + (view === 'owner' ? 'owner' : view)).classList.add('active');
+  if (view === 'table-owner') renderTableOwnerView();
+  if (view === 'user') renderUserView(document.getElementById('user-table-input').value);
+}
+
+// ─── TABLE DATA STORE ─────────────────────────────────────
+const tableStore = {
+  'catalog.items': {
+    owner:'김데이터팀', pipeline:'CAT-01', sla:'99.5%', tier:'gold',
+    email:'data-catalog@company.com',
+    lastRefresh:'09:43', lastRefreshAgo:'7분 전', nextRefresh:'10:43', nextRefreshMin:53,
+    rowCount:'2,847,392', rowDelta:'+1.2%', upstreamOk:3, upstreamTotal:3, downstreamCount:5,
+    status:'ok', statusText:'정상',
+    upstream:[
+      {name:'CATALOG DB',role:'원천 DB',status:'unknown',color:'#3b82f6'},
+      {name:'CAT-01',role:'CSV 파이프라인',status:'ok',color:'#3b82f6'},
+      {name:'mhub',role:'메시지 브로커',status:'ok',color:'#8892b0'},
+      {name:'Listener',role:'컨슈머',status:'ok',color:'#8892b0'},
+      {name:'Impala NiFi',role:'ETL',status:'delay',color:'#f59e0b'},
+      {name:'catalog.items',role:'대상 테이블',status:'ok',color:'#6366f1',isThis:true},
+    ],
+    downstream:[
+      {name:'상품 대시보드',type:'dash',qps:'12 QPS'},{name:'Catalog API',type:'api',qps:'84 QPS'},
+      {name:'추천 서비스',type:'app',qps:'203 QPS'},{name:'검색 인덱서',type:'app',qps:'18 QPS'},
+      {name:'BI 리포트',type:'dash',qps:'5 QPS'},
+    ],
+    execs:[
+      {time:'09:43',dur:'2m 31s',rows:'12,847',status:'ok',note:''},
+      {time:'08:43',dur:'2m 18s',rows:'11,203',status:'ok',note:''},
+      {time:'07:43',dur:'3m 52s',rows:'13,102',status:'delay',note:'+1m 52s 지연'},
+      {time:'06:43',dur:'2m 11s',rows:'10,948',status:'ok',note:''},
+      {time:'05:43',dur:'2m 08s',rows:'9,841',status:'ok',note:''},
+      {time:'04:43',dur:'2m 22s',rows:'10,234',status:'ok',note:''},
+      {time:'03:43',dur:'4m 12s',rows:'11,847',status:'retry',note:'1회 재시도 후 성공'},
+      {time:'02:43',dur:'2m 19s',rows:'10,592',status:'ok',note:''},
+      {time:'01:43',dur:'2m 33s',rows:'9,934',status:'ok',note:''},
+      {time:'00:43',dur:'2m 27s',rows:'10,847',status:'ok',note:''},
+    ],
+    quality:[
+      {name:'완전성 (Completeness)',score:98.7,color:'#22c55e'},
+      {name:'유효성 (Validity)',score:97.8,color:'#22c55e'},
+      {name:'유일성 (Uniqueness)',score:99.2,color:'#22c55e'},
+      {name:'신선도 (Timeliness)',score:94.1,color:'#f59e0b'},
+      {name:'일관성 (Consistency)',score:96.3,color:'#22c55e'},
+    ],
+    schema:[
+      {time:'08:47',type:'add',msg:"컬럼 'discount_rate' FLOAT 추가"},
+      {time:'3일 전',type:'mod',msg:"'price' DECIMAL(12,2)→DECIMAL(15,4) 변경"},
+      {time:'1주 전',type:'add',msg:"컬럼 'category_v2' VARCHAR(100) 추가"},
+      {time:'2주 전',type:'del',msg:"컬럼 'legacy_id' 삭제"},
+    ],
+    issues:[
+      {level:'warn',msg:'NiFi +9분 지연 → 갱신 지연 가능성 있음',time:'09:31'},
+      {level:'info',msg:"스키마 변경(discount_rate) — 하위 호환 유지",time:'08:47'},
+      {level:'ok',msg:'SLA 99.5% 이번달 유지 중',time:'이번달'},
+    ],
+    freshnessPct:94, queryP50:'48ms', queryP95:'312ms', queryP99:'1.2s',
+    queryCount:'4,820', activeUsers:'23',
+  },
+  'catalog.orders': {
+    owner:'주문플랫폼팀', pipeline:'CAT-03', sla:'96.2%', tier:'gold',
+    email:'order-platform@company.com',
+    lastRefresh:'07:38', lastRefreshAgo:'2시간 14분 전', nextRefresh:'09:38', nextRefreshMin:0,
+    rowCount:'1,234,891', rowDelta:'+0.4%', upstreamOk:2, upstreamTotal:3, downstreamCount:3,
+    status:'warn', statusText:'지연',
+    upstream:[
+      {name:'CATALOG DB',role:'원천 DB',status:'unknown',color:'#3b82f6'},
+      {name:'CAT-03',role:'CSV 파이프라인',status:'delay',color:'#3b82f6'},
+      {name:'mhub',role:'메시지 브로커',status:'ok',color:'#8892b0'},
+      {name:'Listener',role:'컨슈머',status:'ok',color:'#8892b0'},
+      {name:'Impala NiFi',role:'ETL',status:'delay',color:'#f59e0b'},
+      {name:'catalog.orders',role:'대상 테이블',status:'warn',color:'#6366f1',isThis:true},
+    ],
+    downstream:[
+      {name:'주문 현황 대시보드',type:'dash',qps:'32 QPS'},
+      {name:'정산 시스템',type:'app',qps:'8 QPS'},
+      {name:'고객 알림 API',type:'api',qps:'15 QPS'},
+    ],
+    execs:[
+      {time:'07:38',dur:'4m 08s',rows:'8,341',status:'delay',note:'+2m 지연'},
+      {time:'05:38',dur:'2m 55s',rows:'7,892',status:'ok',note:''},
+      {time:'03:38',dur:'3m 01s',rows:'8,102',status:'ok',note:''},
+      {time:'01:38',dur:'2m 48s',rows:'7,634',status:'ok',note:''},
+      {time:'23:38',dur:'2m 41s',rows:'9,847',status:'ok',note:''},
+      {time:'21:38',dur:'2m 39s',rows:'10,293',status:'ok',note:''},
+      {time:'19:38',dur:'3m 22s',rows:'11,047',status:'delay',note:'+40s 지연'},
+      {time:'17:38',dur:'2m 44s',rows:'12,839',status:'ok',note:''},
+      {time:'15:38',dur:'2m 51s',rows:'11,294',status:'ok',note:''},
+      {time:'13:38',dur:'5m 17s',rows:'10,483',status:'retry',note:'2회 재시도 후 성공'},
+    ],
+    quality:[
+      {name:'완전성 (Completeness)',score:96.1,color:'#22c55e'},
+      {name:'유효성 (Validity)',score:94.8,color:'#f59e0b'},
+      {name:'유일성 (Uniqueness)',score:99.9,color:'#22c55e'},
+      {name:'신선도 (Timeliness)',score:71.2,color:'#ef4444'},
+      {name:'일관성 (Consistency)',score:93.4,color:'#f59e0b'},
+    ],
+    schema:[
+      {time:'5일 전',type:'add',msg:"컬럼 'payment_method_v2' VARCHAR(50) 추가"},
+      {time:'3주 전',type:'mod',msg:"'amount' INT→BIGINT 변경 (대용량 대응)"},
+      {time:'1달 전',type:'del',msg:"컬럼 'coupon_legacy' 삭제"},
+    ],
+    issues:[
+      {level:'warn',msg:'마지막 갱신 2시간 14분 전 — SLA 기준 초과 임박',time:'07:38'},
+      {level:'warn',msg:'신선도 점수 71.2% — 하한선(80%) 미달',time:'현재'},
+      {level:'info',msg:'2시간 interval 파이프라인 — 다음 실행 지남',time:'예정'},
+    ],
+    freshnessPct:42, queryP50:'82ms', queryP95:'680ms', queryP99:'3.1s',
+    queryCount:'1,204', activeUsers:'12',
+  },
+  'realtime.events': {
+    owner:'리얼타임팀', pipeline:'RT-01~05', sla:'84.1%', tier:'silver',
+    email:'realtime@company.com',
+    lastRefresh:'09:47', lastRefreshAgo:'방금 전 (15분 간격)', nextRefresh:'10:02', nextRefreshMin:8,
+    rowCount:'48,293,841', rowDelta:'+8.4%', upstreamOk:2, upstreamTotal:2, downstreamCount:7,
+    status:'ok', statusText:'정상',
+    upstream:[
+      {name:'REALTIME DB',role:'원천 DB',status:'unknown',color:'#10b981'},
+      {name:'RT-01~05',role:'RT 파이프라인',status:'ok',color:'#10b981'},
+      {name:'mhub',role:'메시지 브로커',status:'ok',color:'#8892b0'},
+      {name:'Listener',role:'컨슈머',status:'ok',color:'#8892b0'},
+      {name:'realtime.events',role:'대상 테이블',status:'ok',color:'#6366f1',isThis:true},
+    ],
+    downstream:[
+      {name:'실시간 모니터링',type:'dash',qps:'1,204 QPS'},{name:'알림 서비스',type:'app',qps:'893 QPS'},
+      {name:'Analytics API',type:'api',qps:'342 QPS'},{name:'ML 특징 서버',type:'app',qps:'212 QPS'},
+      {name:'이상감지 시스템',type:'app',qps:'88 QPS'},{name:'운영 대시보드',type:'dash',qps:'45 QPS'},
+      {name:'데이터 웨어하우스',type:'app',qps:'12 QPS'},
+    ],
+    execs:[
+      {time:'09:47',dur:'12s',rows:'203,847',status:'ok',note:''},
+      {time:'09:32',dur:'11s',rows:'198,234',status:'ok',note:''},
+      {time:'09:17',dur:'31s',rows:'201,093',status:'delay',note:'RT-02 heartbeat 지연'},
+      {time:'09:02',dur:'12s',rows:'197,834',status:'ok',note:''},
+      {time:'08:47',dur:'13s',rows:'202,941',status:'ok',note:''},
+      {time:'08:32',dur:'48s',rows:'195,847',status:'retry',note:'연결 오류 → 재시도 성공'},
+      {time:'08:17',dur:'11s',rows:'199,034',status:'ok',note:''},
+      {time:'08:02',dur:'12s',rows:'203,812',status:'ok',note:''},
+      {time:'07:47',dur:'12s',rows:'198,403',status:'ok',note:''},
+      {time:'07:32',dur:'13s',rows:'201,847',status:'ok',note:''},
+    ],
+    quality:[
+      {name:'완전성 (Completeness)',score:91.2,color:'#f59e0b'},
+      {name:'유효성 (Validity)',score:88.9,color:'#f59e0b'},
+      {name:'유일성 (Uniqueness)',score:94.7,color:'#f59e0b'},
+      {name:'신선도 (Timeliness)',score:98.1,color:'#22c55e'},
+      {name:'일관성 (Consistency)',score:87.3,color:'#f59e0b'},
+    ],
+    schema:[
+      {time:'2일 전',type:'add',msg:"컬럼 'device_fingerprint' VARCHAR(64) 추가"},
+      {time:'1주 전',type:'mod',msg:"'event_ts' TIMESTAMP→TIMESTAMP WITH TIMEZONE"},
+      {time:'2주 전',type:'add',msg:"파티션 키 'region' 추가"},
+    ],
+    issues:[
+      {level:'warn',msg:'RT-02 heartbeat 간헐적 지연 감지 중',time:'09:15'},
+      {level:'info',msg:'SLA 84.1% — 목표(95%) 대비 미달, 개선 작업 예정',time:'이번달'},
+    ],
+    freshnessPct:99, queryP50:'8ms', queryP95:'64ms', queryP99:'310ms',
+    queryCount:'28,403', activeUsers:'87',
+  },
+  'yms.shipments': {
+    owner:'물류YMS팀', pipeline:'YMS-01~04', sla:'91.8%', tier:'gold',
+    email:'yms-ops@company.com',
+    lastRefresh:'09:40', lastRefreshAgo:'10분 전', nextRefresh:'10:40', nextRefreshMin:50,
+    rowCount:'892,347', rowDelta:'-0.3%', upstreamOk:3, upstreamTotal:4, downstreamCount:4,
+    status:'ok', statusText:'정상',
+    upstream:[
+      {name:'YMS CDC',role:'원천 DB',status:'unknown',color:'#f97316'},
+      {name:'YMS-01~04',role:'CDC 파이프라인',status:'ok',color:'#f97316'},
+      {name:'mhub',role:'메시지 브로커',status:'ok',color:'#8892b0'},
+      {name:'Listener',role:'컨슈머',status:'ok',color:'#8892b0'},
+      {name:'Impala NiFi',role:'ETL',status:'delay',color:'#f59e0b'},
+      {name:'yms.shipments',role:'대상 테이블',status:'ok',color:'#6366f1',isThis:true},
+    ],
+    downstream:[
+      {name:'배송 추적 앱',type:'app',qps:'445 QPS'},{name:'물류 대시보드',type:'dash',qps:'28 QPS'},
+      {name:'파트너 API',type:'api',qps:'183 QPS'},{name:'정산 연동',type:'app',qps:'9 QPS'},
+    ],
+    execs:[
+      {time:'09:40',dur:'3m 12s',rows:'4,203',status:'ok',note:''},
+      {time:'08:40',dur:'3m 48s',rows:'3,892',status:'delay',note:'+48s'},
+      {time:'07:40',dur:'3m 05s',rows:'4,104',status:'ok',note:''},
+      {time:'06:40',dur:'3m 10s',rows:'3,941',status:'ok',note:''},
+      {time:'05:40',dur:'3m 07s',rows:'3,720',status:'ok',note:''},
+      {time:'04:40',dur:'3m 22s',rows:'3,847',status:'ok',note:''},
+      {time:'03:40',dur:'3m 09s',rows:'4,012',status:'ok',note:''},
+      {time:'02:40',dur:'6m 44s',rows:'3,934',status:'retry',note:'YMS DB 연결 오류 후 재시도'},
+      {time:'01:40',dur:'3m 15s',rows:'3,847',status:'ok',note:''},
+      {time:'00:40',dur:'3m 08s',rows:'4,234',status:'ok',note:''},
+    ],
+    quality:[
+      {name:'완전성 (Completeness)',score:97.3,color:'#22c55e'},
+      {name:'유효성 (Validity)',score:96.1,color:'#22c55e'},
+      {name:'유일성 (Uniqueness)',score:99.8,color:'#22c55e'},
+      {name:'신선도 (Timeliness)',score:90.4,color:'#f59e0b'},
+      {name:'일관성 (Consistency)',score:94.7,color:'#f59e0b'},
+    ],
+    schema:[
+      {time:'1주 전',type:'add',msg:"컬럼 'carrier_code' VARCHAR(20) 추가"},
+      {time:'3주 전',type:'mod',msg:"'weight' FLOAT→DECIMAL(10,3) 정밀도 향상"},
+    ],
+    issues:[
+      {level:'warn',msg:'NiFi 지연으로 인한 잠재적 처리 지연',time:'09:31'},
+      {level:'ok',msg:'월간 SLA 91.8% 정상 유지',time:'이번달'},
+    ],
+    freshnessPct:88, queryP50:'35ms', queryP95:'280ms', queryP99:'940ms',
+    queryCount:'2,847', activeUsers:'19',
+  },
+  'file.transactions': {
+    owner:'파일통합팀', pipeline:'FILE-01~03', sla:'98.5%', tier:'bronze',
+    email:'file-ops@company.com',
+    lastRefresh:'04:12', lastRefreshAgo:'5시간 35분 전 (1일 배치)', nextRefresh:'익일 04:00', nextRefreshMin:860,
+    rowCount:'12,847,293', rowDelta:'+2.1%', upstreamOk:1, upstreamTotal:1, downstreamCount:2,
+    status:'ok', statusText:'정상 (일배치)',
+    upstream:[
+      {name:'FILE DB',role:'원천 파일',status:'unknown',color:'#a855f7'},
+      {name:'FILE-01~03',role:'파일 파이프라인',status:'ok',color:'#a855f7'},
+      {name:'mhub',role:'메시지 브로커',status:'ok',color:'#8892b0'},
+      {name:'Impala',role:'저장소',status:'ok',color:'#8892b0'},
+      {name:'file.transactions',role:'대상 테이블',status:'ok',color:'#6366f1',isThis:true},
+    ],
+    downstream:[
+      {name:'정산 리포트',type:'dash',qps:'3 QPS'},
+      {name:'감사 시스템',type:'app',qps:'1 QPS'},
+    ],
+    execs:[
+      {time:'04:12 (오늘)',dur:'18m 42s',rows:'12,847,293',status:'ok',note:'1일 배치'},
+      {time:'04:08 (어제)',dur:'17m 55s',rows:'12,591,847',status:'ok',note:'1일 배치'},
+      {time:'04:15 (2일전)',dur:'19m 12s',rows:'12,234,039',status:'ok',note:'1일 배치'},
+      {time:'04:09 (3일전)',dur:'18m 03s',rows:'11,983,472',status:'ok',note:'1일 배치'},
+      {time:'04:22 (4일전)',dur:'21m 37s',rows:'12,104,830',status:'delay',note:'+3m 37s'},
+      {time:'04:11 (5일전)',dur:'17m 48s',rows:'11,847,293',status:'ok',note:'1일 배치'},
+      {time:'04:18 (6일전)',dur:'18m 22s',rows:'12,039,847',status:'ok',note:'1일 배치'},
+    ],
+    quality:[
+      {name:'완전성 (Completeness)',score:99.1,color:'#22c55e'},
+      {name:'유효성 (Validity)',score:98.7,color:'#22c55e'},
+      {name:'유일성 (Uniqueness)',score:100.0,color:'#22c55e'},
+      {name:'신선도 (Timeliness)',score:82.4,color:'#f59e0b'},
+      {name:'일관성 (Consistency)',score:99.3,color:'#22c55e'},
+    ],
+    schema:[
+      {time:'2달 전',type:'add',msg:"컬럼 'file_hash' VARCHAR(64) 추가 (무결성 검증)"},
+      {time:'3달 전',type:'mod',msg:"파티션 전략 월→일별로 변경"},
+    ],
+    issues:[
+      {level:'info',msg:'1일 배치 파이프라인 — 당일 04시 실행',time:'매일'},
+      {level:'ok',msg:'SLA 98.5% 최상위 수준 유지',time:'이번달'},
+    ],
+    freshnessPct:60, queryP50:'920ms', queryP95:'4.2s', queryP99:'12s',
+    queryCount:'128', activeUsers:'6',
+  },
+};
+
+// ─── TABLE OWNER VIEW RENDERER ────────────────────────────
+function renderTableOwnerView() {
+  const key = document.getElementById('to-table-select').value;
+  const d = tableStore[key];
+  if (!d) return;
+
+  // Update selector bar meta
+  document.getElementById('to-meta-owner').textContent = d.owner;
+  document.getElementById('to-meta-pipe').textContent = d.pipeline;
+  document.getElementById('to-meta-sla').textContent = d.sla;
+  document.getElementById('to-meta-email').textContent = d.email;
+  const tierEl = document.getElementById('to-meta-tier');
+  tierEl.textContent = d.tier.toUpperCase();
+  tierEl.className = `to-tier ${d.tier}`;
+
+  // KPI
+  document.getElementById('to-k-refresh').textContent = d.lastRefresh;
+  document.getElementById('to-k-refresh-sub').textContent = d.lastRefreshAgo;
+  document.getElementById('to-k-rows').textContent = d.rowCount.split(',')[0] + (d.rowCount.includes('M') ? 'M' : d.rowCount.length > 6 ? '.'+d.rowCount.split(',')[1].slice(0,1)+'M' : 'K');
+  document.getElementById('to-k-rows-sub').textContent = '어제比 ' + d.rowDelta;
+  document.getElementById('to-k-upstream').textContent = d.upstreamOk + '/' + d.upstreamTotal;
+  document.getElementById('to-k-downstream').textContent = d.downstreamCount;
+
+  // Mini Lineage
+  const lineageEl = document.getElementById('to-lineage');
+  const statusColors = {ok:'#22c55e', delay:'#fb923c', err:'#ef4444', unknown:'#6b7280', warn:'#f59e0b'};
+  lineageEl.innerHTML = d.upstream.map((n, i) => {
+    const sc = statusColors[n.status] || '#6b7280';
+    const boxCls = n.isThis ? ' this' : '';
+    const boxStyle = n.isThis
+      ? `background:#1a2035;border-color:${n.color};color:${n.color}`
+      : `background:#0d1222;border-color:${n.color}44;color:${n.color}`;
+    const arrow = i < d.upstream.length - 1 ? `<span class="ml-arrow">→</span>` : '';
+    return `<div class="ml-node">
+      <div class="ml-box${boxCls}" style="${boxStyle}">${n.name}</div>
+      <div class="ml-status-dot" style="background:${sc}"></div>
+      <div class="ml-label">${n.role}</div>
+    </div>${arrow}`;
+  }).join('');
+
+  // Exec history
+  const tbody = document.getElementById('to-exec-tbody');
+  tbody.innerHTML = d.execs.map(e => {
+    const sc = {ok:'ok',delay:'delay',err:'err',retry:'retry'}[e.status];
+    const icons = {ok:'✓',delay:'⚠',err:'✗',retry:'↺'};
+    return `<tr>
+      <td style="font-size:.68rem;color:var(--text3)">${e.time}</td>
+      <td>${e.dur}</td>
+      <td>${e.rows}</td>
+      <td><span class="exec-status ${sc}">${icons[e.status]} ${e.status === 'retry' ? '재시도 성공' : e.status === 'delay' ? '지연' : e.status === 'err' ? '실패' : '성공'}</span></td>
+      <td style="color:var(--text3);font-size:.65rem">${e.note || '—'}</td>
+    </tr>`;
+  }).join('');
+
+  // Quality
+  const qualEl = document.getElementById('to-quality');
+  qualEl.innerHTML = d.quality.map(q => {
+    const pct = q.score.toFixed(1);
+    return `<div class="qual-item">
+      <div class="qual-left">
+        <div class="qual-name">${q.name}</div>
+        <div class="qual-bar-bg"><div class="qual-bar-fill" style="width:${q.score}%;background:${q.color}"></div></div>
+      </div>
+      <div class="qual-score" style="color:${q.color}">${pct}%</div>
+    </div>`;
+  }).join('');
+
+  // Schema
+  const schemaEl = document.getElementById('to-schema');
+  schemaEl.innerHTML = d.schema.map(s =>
+    `<div class="schema-item">
+      <span class="schema-time">${s.time}</span>
+      <span class="schema-badge ${s.type}">${s.type === 'add' ? '추가' : s.type === 'mod' ? '변경' : '삭제'}</span>
+      <span class="schema-msg">${s.msg}</span>
+    </div>`
+  ).join('');
+
+  // Consumers
+  const consEl = document.getElementById('to-consumers');
+  consEl.innerHTML = d.downstream.map(c =>
+    `<div class="consumer-item">
+      <div class="consumer-name">
+        <span class="consumer-type ${c.type}">${c.type === 'dash' ? '대시보드' : c.type === 'api' ? 'API' : '앱'}</span>
+        ${c.name}
+      </div>
+      <div class="consumer-qps">${c.qps}</div>
+    </div>`
+  ).join('');
+}
+
+// ─── USER VIEW RENDERER ────────────────────────────────────
+function renderUserView(query) {
+  const q = (query || '').trim().toLowerCase();
+  const content = document.getElementById('user-view-content');
+
+  // fuzzy match
+  const key = Object.keys(tableStore).find(k => k.toLowerCase().includes(q) || q.includes(k.toLowerCase().split('.')[1]));
+  if (!q || !key) {
+    if (q) {
+      content.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text3)"><div style="font-size:1.5rem;margin-bottom:8px">🤔</div><div>"${query}" 에 해당하는 테이블을 찾을 수 없습니다</div><div style="margin-top:6px;font-size:.75rem">catalog.items / catalog.orders / realtime.events / yms.shipments / file.transactions</div></div>`;
+    }
+    return;
+  }
+  const d = tableStore[key];
+  const statusConf = {
+    ok: {icon:'✅', color:'#22c55e', label:'데이터 사용 가능', badgeBg:'rgba(34,197,94,.12)', badgeBorder:'rgba(34,197,94,.4)'},
+    warn: {icon:'⚠️', color:'#f59e0b', label:'데이터 지연', badgeBg:'rgba(245,158,11,.12)', badgeBorder:'rgba(245,158,11,.4)'},
+    err: {icon:'🚫', color:'#ef4444', label:'데이터 사용 불가', badgeBg:'rgba(239,68,68,.12)', badgeBorder:'rgba(239,68,68,.4)'},
+  };
+  const sc = statusConf[d.status] || statusConf.ok;
+  const avgQuality = (d.quality.reduce((a,q) => a+q.score, 0) / d.quality.length).toFixed(1);
+  const qualColor = avgQuality >= 97 ? '#22c55e' : avgQuality >= 90 ? '#f59e0b' : '#ef4444';
+
+  content.innerHTML = `
+    <!-- Status Card -->
+    <div class="card user-status-card" style="margin-bottom:14px">
+      <div class="user-status-left">
+        <div class="user-status-badge ${d.status}" style="background:${sc.badgeBg};border-color:${sc.badgeBorder}">
+          <span>${sc.icon}</span>
+        </div>
+        <div>
+          <div class="user-status-title">${key}</div>
+          <div class="user-status-sub">${d.lastRefresh} 기준 · ${d.lastRefreshAgo} 업데이트됨</div>
+          <div class="user-status-pills">
+            <span class="user-pill" style="color:${sc.color};border-color:${sc.color}44;background:${sc.badgeBg}">${sc.label}</span>
+            <span class="user-pill" style="color:var(--text3);border-color:var(--border)">${d.pipeline}</span>
+            <span class="user-pill to-tier ${d.tier}" style="border-width:1px">${d.tier.toUpperCase()} 티어</span>
+          </div>
+        </div>
+      </div>
+      <div class="user-status-right">
+        <div class="user-stat-item">
+          <span class="user-stat-val" style="color:${sc.color}">${d.lastRefresh}</span>
+          <span class="user-stat-lbl">마지막 갱신</span>
+        </div>
+        <div class="user-stat-item">
+          <span class="user-stat-val">${d.nextRefresh}</span>
+          <span class="user-stat-lbl">다음 갱신 예정</span>
+        </div>
+        <div class="user-stat-item">
+          <span class="user-stat-val">${d.rowCount}</span>
+          <span class="user-stat-lbl">전체 행 수</span>
+        </div>
+        <div class="user-stat-item">
+          <span class="user-stat-val" style="color:${qualColor}">${avgQuality}%</span>
+          <span class="user-stat-lbl">품질 점수</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 Col Grid -->
+    <div class="user-3grid">
+
+      <!-- Freshness & Next Update -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title"><span class="card-icon">💧</span>데이터 신선도</div>
+        </div>
+        <div class="card-body">
+          <div style="text-align:center;margin-bottom:12px">
+            <div style="font-size:2rem;font-weight:800;color:${d.freshnessPct>=90?'#22c55e':d.freshnessPct>=60?'#f59e0b':'#ef4444'}">${d.freshnessPct}%</div>
+            <div style="font-size:.7rem;color:var(--text3);margin-top:2px">신선도 지수</div>
+          </div>
+          <div class="user-freshness-track">
+            <div class="user-freshness-fill" style="width:${d.freshnessPct}%;background:${d.freshnessPct>=90?'#22c55e':d.freshnessPct>=60?'#f59e0b':'#ef4444'}"></div>
+          </div>
+          <div class="user-freshness-labels"><span>오래됨</span><span>신선</span></div>
+          <div style="margin-top:12px;padding:10px 12px;background:var(--bg-elevated);border-radius:7px">
+            <div style="font-size:.65rem;color:var(--text3);margin-bottom:3px">⏰ 다음 갱신 예정</div>
+            <div style="font-size:.88rem;font-weight:700;color:var(--text)">${d.nextRefresh}</div>
+            <div style="font-size:.65rem;color:var(--text3);margin-top:2px">${d.nextRefreshMin > 60 ? Math.floor(d.nextRefreshMin/60)+'시간 후' : d.nextRefreshMin+'분 후'}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Quality -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title"><span class="card-icon">🎯</span>데이터 품질</div>
+          <div class="card-sub">5개 지표 평균 ${avgQuality}%</div>
+        </div>
+        <div class="card-body">
+          ${d.quality.map(q => `
+            <div class="user-qual-row">
+              <div class="user-qual-name">${q.name.split(' ')[0]}</div>
+              <div class="user-qual-right">
+                <div class="user-qual-val" style="color:${q.color}">${q.score.toFixed(1)}%</div>
+                <div class="user-qual-dot" style="background:${q.color}"></div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- Query Performance -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title"><span class="card-icon">⚡</span>쿼리 성능</div>
+          <div class="card-sub">최근 24시간 기준</div>
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+            <div style="background:var(--bg-elevated);border-radius:6px;padding:8px 10px;text-align:center">
+              <div style="font-size:1rem;font-weight:800;color:var(--text)">${d.queryCount}</div>
+              <div style="font-size:.62rem;color:var(--text3)">오늘 쿼리 수</div>
+            </div>
+            <div style="background:var(--bg-elevated);border-radius:6px;padding:8px 10px;text-align:center">
+              <div style="font-size:1rem;font-weight:800;color:var(--text)">${d.activeUsers}</div>
+              <div style="font-size:.62rem;color:var(--text3)">활성 사용자</div>
+            </div>
+          </div>
+          <div style="font-size:.65rem;color:var(--text3);margin-bottom:8px;font-weight:700">응답 시간 분포</div>
+          <div class="user-query-bar-row">
+            <span class="user-query-label">P50</span>
+            <div class="user-query-bar-bg"><div class="user-query-bar-fill" style="width:20%;background:#22c55e"></div></div>
+            <span class="user-query-val" style="color:#22c55e">${d.queryP50}</span>
+          </div>
+          <div class="user-query-bar-row">
+            <span class="user-query-label">P95</span>
+            <div class="user-query-bar-bg"><div class="user-query-bar-fill" style="width:55%;background:#f59e0b"></div></div>
+            <span class="user-query-val" style="color:#f59e0b">${d.queryP95}</span>
+          </div>
+          <div class="user-query-bar-row">
+            <span class="user-query-label">P99</span>
+            <div class="user-query-bar-bg"><div class="user-query-bar-fill" style="width:80%;background:#fb923c"></div></div>
+            <span class="user-query-val" style="color:#fb923c">${d.queryP99}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Issues + Actions -->
+    <div style="display:grid;grid-template-columns:1fr 300px;gap:14px">
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title"><span class="card-icon">📢</span>현재 알림 / 알아야 할 사항</div>
+        </div>
+        <div class="card-body">
+          ${d.issues.map(i => `
+            <div class="user-issue-item ${i.level}">
+              <span class="user-issue-text">${i.level==='warn'?'⚠️':i.level==='ok'?'✅':'ℹ️'} ${i.msg}</span>
+              <span class="user-issue-time">${i.time}</span>
+            </div>`).join('')}
+          <div class="user-actions">
+            <button class="user-btn primary" onclick="alert('알림 구독 기능은 실제 환경에서 연동됩니다.')">🔔 알림 구독</button>
+            <button class="user-btn outline" onclick="alert('SLA 리포트를 다운로드합니다.')">📄 SLA 리포트</button>
+            <button class="user-btn outline" onclick="switchView('table-owner');document.getElementById('to-table-select').value='${key}';renderTableOwnerView()">📦 Owner 뷰로 보기</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title"><span class="card-icon">👤</span>테이블 담당자</div>
+        </div>
+        <div class="card-body">
+          <div class="user-owner-card">
+            <div class="user-owner-avatar">👤</div>
+            <div>
+              <div class="user-owner-name">${d.owner}</div>
+              <div class="user-owner-role">${d.email}</div>
+            </div>
+          </div>
+          <div style="margin-top:10px;font-size:.7rem;color:var(--text3)">데이터 관련 문의 또는 품질 이슈는 위 담당팀으로 연락하세요.</div>
+          <div class="user-actions" style="margin-top:8px">
+            <button class="user-btn outline" onclick="alert('이메일 클라이언트를 통해 문의합니다.')">✉️ 문의하기</button>
+            <button class="user-btn outline" onclick="alert('Jira 이슈를 생성합니다.')">🐛 이슈 등록</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 // ─── LINEAGE TOGGLE ────────────────────────────────────────
