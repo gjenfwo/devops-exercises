@@ -12,7 +12,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
 :root{
   --bg-base:#080d1a;--bg-surface:#0d1222;--bg-card:#111827;--bg-elevated:#1a2035;
   --border-dim:#1a2236;--border:#222d46;
-  --text:#e2e8f0;--text2:#8892b0;--text3:#4a5568;
+  --text:#ffffff;--text2:#d0d8ea;--text3:#8892b0;
   --ok:#22c55e;--warn:#f59e0b;--err:#ef4444;--delay:#fb923c;--unknown:#6b7280;--miss:#1e293b;
   --cat:#3b82f6;--rt:#10b981;--yms:#f97316;--file:#a855f7;--chip:#ec4899;
   --accent:#6366f1
@@ -106,6 +106,57 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
 .sla-val{font-size:1rem;font-weight:800;margin-bottom:2px}
 .sla-bar-bg{height:4px;background:#1a2236;border-radius:2px;overflow:hidden}
 .sla-bar-fill{height:100%;border-radius:2px}
+
+/* ─── FILTER BAR ──────────────────────────────────────── */
+.filter-bar{padding:12px 16px;margin-bottom:14px}
+.filter-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.filter-tab{padding:5px 14px;border-radius:20px;font-size:.75rem;font-weight:700;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;font-family:inherit}
+.filter-tab:hover{border-color:var(--accent);color:var(--text)}
+.filter-tab.active[data-type="all"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.filter-tab.active[data-type="cat"]{background:var(--cat);border-color:var(--cat);color:#fff}
+.filter-tab.active[data-type="rt"]{background:var(--rt);border-color:var(--rt);color:#fff}
+.filter-tab.active[data-type="yms"]{background:var(--yms);border-color:var(--yms);color:#fff}
+.filter-tab.active[data-type="file"]{background:var(--file);border-color:var(--file);color:#fff}
+.filter-tab.active[data-type="chip"]{background:var(--chip);border-color:var(--chip);color:#fff}
+.filter-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.filter-input{background:var(--bg-elevated);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 12px;font-size:.75rem;flex:1;min-width:200px;max-width:300px;outline:none;font-family:inherit}
+.filter-input:focus{border-color:var(--accent)}
+.filter-input::placeholder{color:var(--text3)}
+.pipe-btns{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;min-height:26px;align-items:center}
+.pipe-btn{padding:3px 9px;border-radius:12px;font-size:.65rem;font-weight:700;border:1px solid;background:transparent;cursor:pointer;opacity:.5;transition:all .15s;font-family:inherit}
+.pipe-btn:hover{opacity:.85}
+.pipe-btn.active{opacity:1}
+.filter-clear{padding:5px 10px;border-radius:6px;font-size:.72rem;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;white-space:nowrap;font-family:inherit}
+.filter-clear:hover{border-color:var(--err);color:var(--err)}
+.filter-row2{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filter-label{font-size:.7rem;color:var(--text3);white-space:nowrap}
+
+/* ─── LINEAGE COLLAPSE ────────────────────────────────── */
+.lineage-toggle-btn{padding:4px 10px;border-radius:5px;font-size:.72rem;font-weight:600;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;font-family:inherit}
+.lineage-toggle-btn:hover{border-color:var(--accent);color:var(--text)}
+.lineage-body.collapsed{display:none}
+
+/* ─── TIMELINE v2 (absolute positioning) ────────────── */
+.tl-wrap{padding:10px 14px;overflow-x:auto}
+.tl-hdr{display:flex;margin-bottom:4px}
+.tl-hdr-spacer{width:154px;flex-shrink:0}
+.tl-hr-row{flex:1;position:relative;height:14px;min-width:400px}
+.tl-hr{position:absolute;font-size:.58rem;color:var(--text3);transform:translateX(-50%)}
+.tl-row{display:flex;align-items:center;gap:4px;margin-bottom:3px}
+.tl-lbl{width:150px;font-size:.67rem;padding-right:6px;display:flex;align-items:center;justify-content:flex-end;gap:4px;flex-shrink:0}
+.tl-lbl-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px}
+.tl-interval-badge{font-size:.57rem;color:var(--text3);background:#1a2236;padding:1px 5px;border-radius:3px;white-space:nowrap;flex-shrink:0}
+.tl-bars{position:relative;height:16px;flex:1;background:#0b1120;border-radius:2px;overflow:hidden;min-width:400px}
+.tl-exec{position:absolute;top:1px;height:14px;border-radius:2px;cursor:default;transition:opacity .15s;min-width:2px}
+.tl-exec:hover{opacity:.7;z-index:2}
+.tl-exec.ok{background:var(--ok)}
+.tl-exec.delay{background:var(--delay)}
+.tl-exec.err{background:var(--err)}
+.tl-exec.miss{background:#1c2840;border:1px solid #2d3f5a}
+.tl-exec.retry{background:linear-gradient(to right,#ef4444 0% 38%,#1e2d3f 38% 62%,#22c55e 62% 100%);position:relative}
+.tl-retry-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:7px;color:#fff;line-height:1;pointer-events:none;font-weight:800}
+.tl-no-result{padding:20px;text-align:center;color:var(--text3);font-size:.8rem}
+.tl-sl-retry{display:inline-block;width:20px;height:12px;border-radius:2px;background:linear-gradient(to right,#ef4444 0% 38%,#1e2d3f 38% 62%,#22c55e 62% 100%);vertical-align:middle}
 </style>
 </head>
 <body>
@@ -168,8 +219,12 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
     <div class="card">
       <div class="card-hdr">
         <div class="card-title"><span class="card-icon">🔗</span>Data Lineage Flow</div>
-        <div class="card-sub">원천 DB → CSV (20개) → mhub → Message Listener → Impala NiFi → Impala Refresh → Client</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="card-sub">원천 DB → CSV (20개) → mhub → Listener → NiFi → Impala → Client</div>
+          <button class="lineage-toggle-btn" id="lineage-toggle-btn" onclick="toggleLineage()">접기 ▲</button>
+        </div>
       </div>
+      <div id="lineage-body">
       <div class="lineage-wrap">
         <svg viewBox="0 0 1100 340" style="width:100%;height:auto">
           <defs>
@@ -204,13 +259,13 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
           <line x1="940" y1="20" x2="940" y2="320" stroke="#1a2236" stroke-width="1" stroke-dasharray="4,4"/>
 
           <!-- Column Labels -->
-          <text x="85" y="15" text-anchor="middle" font-size="8.5" fill="#2d3d5a" font-weight="700" font-family="system-ui" letter-spacing="1">SOURCE DB</text>
-          <text x="262" y="15" text-anchor="middle" font-size="8.5" fill="#2d3d5a" font-weight="700" font-family="system-ui" letter-spacing="1">CSV PIPELINES (20)</text>
-          <text x="448" y="15" text-anchor="middle" font-size="8.5" fill="#2d3d5a" font-weight="700" font-family="system-ui" letter-spacing="1">MHUB</text>
-          <text x="593" y="15" text-anchor="middle" font-size="8.5" fill="#2d3d5a" font-weight="700" font-family="system-ui" letter-spacing="1">MSG LISTENER</text>
-          <text x="728" y="15" text-anchor="middle" font-size="8.5" fill="#2d3d5a" font-weight="700" font-family="system-ui" letter-spacing="1">NIFI (PARQUET)</text>
-          <text x="868" y="15" text-anchor="middle" font-size="8.5" fill="#2d3d5a" font-weight="700" font-family="system-ui" letter-spacing="1">IMPALA REFRESH</text>
-          <text x="1020" y="15" text-anchor="middle" font-size="8.5" fill="#2d3d5a" font-weight="700" font-family="system-ui" letter-spacing="1">CLIENT</text>
+          <text x="85" y="15" text-anchor="middle" font-size="8.5" fill="#6b88b8" font-weight="700" font-family="system-ui" letter-spacing="1">SOURCE DB</text>
+          <text x="262" y="15" text-anchor="middle" font-size="8.5" fill="#6b88b8" font-weight="700" font-family="system-ui" letter-spacing="1">CSV PIPELINES (20)</text>
+          <text x="448" y="15" text-anchor="middle" font-size="8.5" fill="#6b88b8" font-weight="700" font-family="system-ui" letter-spacing="1">MHUB</text>
+          <text x="593" y="15" text-anchor="middle" font-size="8.5" fill="#6b88b8" font-weight="700" font-family="system-ui" letter-spacing="1">MSG LISTENER</text>
+          <text x="728" y="15" text-anchor="middle" font-size="8.5" fill="#6b88b8" font-weight="700" font-family="system-ui" letter-spacing="1">NIFI (PARQUET)</text>
+          <text x="868" y="15" text-anchor="middle" font-size="8.5" fill="#6b88b8" font-weight="700" font-family="system-ui" letter-spacing="1">IMPALA REFRESH</text>
+          <text x="1020" y="15" text-anchor="middle" font-size="8.5" fill="#6b88b8" font-weight="700" font-family="system-ui" letter-spacing="1">CLIENT</text>
 
           <!-- ══════════════════════════════════════════════ -->
           <!-- SOURCE DB NODES                                -->
@@ -221,7 +276,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
             <circle cx="85" cy="68" r="36" fill="url(#gcat)" stroke="#3b82f6" stroke-width="1.8"/>
             <text x="85" y="62" text-anchor="middle" font-size="9" fill="#93c5fd" font-weight="800" font-family="system-ui">CATALOG</text>
             <text x="85" y="75" text-anchor="middle" font-size="9" fill="#60a5fa" font-family="system-ui">DB</text>
-            <text x="85" y="88" text-anchor="middle" font-size="7.5" fill="#1e40af" font-family="system-ui">8 pipelines</text>
+            <text x="85" y="88" text-anchor="middle" font-size="7.5" fill="#5b8ae8" font-family="system-ui">8 pipelines</text>
           </g>
           <!-- Gray status (unknown) -->
           <circle cx="85" cy="108" r="5.5" fill="#6b7280" opacity=".9"/>
@@ -233,7 +288,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
             <polygon points="0,-38 38,0 0,38 -38,0" fill="url(#grt)" stroke="#10b981" stroke-width="1.8"/>
             <text x="0" y="-7" text-anchor="middle" font-size="9" fill="#6ee7b7" font-weight="800" font-family="system-ui">REALTIME</text>
             <text x="0" y="6" text-anchor="middle" font-size="9" fill="#34d399" font-family="system-ui">DB</text>
-            <text x="0" y="19" text-anchor="middle" font-size="7.5" fill="#064e3b" font-family="system-ui">5 pipelines</text>
+            <text x="0" y="19" text-anchor="middle" font-size="7.5" fill="#4ab894" font-family="system-ui">5 pipelines</text>
           </g>
           <circle cx="85" cy="226" r="5.5" fill="#6b7280" opacity=".9"/>
           <circle cx="85" cy="226" r="9" fill="none" stroke="#6b7280" stroke-width="1" opacity=".25"/>
@@ -243,7 +298,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
           <g transform="translate(85,288)" filter="url(#fshadow)">
             <polygon points="0,-28 24,-14 24,14 0,28 -24,14 -24,-14" fill="url(#gyms)" stroke="#f97316" stroke-width="1.8"/>
             <text x="0" y="-4" text-anchor="middle" font-size="8.5" fill="#fdba74" font-weight="800" font-family="system-ui">YMS CDC</text>
-            <text x="0" y="8" text-anchor="middle" font-size="7.5" fill="#fb923c" font-family="system-ui">4 pipes</text>
+            <text x="0" y="8" text-anchor="middle" font-size="7.5" fill="#fdba74" font-family="system-ui">4 pipes</text>
           </g>
           <circle cx="85" cy="320" r="5.5" fill="#6b7280" opacity=".9"/>
           <circle cx="85" cy="320" r="9" fill="none" stroke="#6b7280" stroke-width="1" opacity=".25"/>
@@ -253,7 +308,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
           <g filter="url(#fshadow)">
             <rect x="46" y="131" width="78" height="40" rx="7" fill="url(#gfile)" stroke="#a855f7" stroke-width="1.8"/>
             <text x="85" y="148" text-anchor="middle" font-size="9" fill="#d8b4fe" font-weight="800" font-family="system-ui">FILE DB</text>
-            <text x="85" y="162" text-anchor="middle" font-size="7.5" fill="#7c3aed" font-family="system-ui">3 pipelines</text>
+            <text x="85" y="162" text-anchor="middle" font-size="7.5" fill="#c084fc" font-family="system-ui">3 pipelines</text>
           </g>
           <!-- gray status for file db -->
           <!-- (no extra dot, shown within row) -->
@@ -293,7 +348,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
           </g>
           <!-- +2 more placeholder -->
           <rect x="200" y="259" width="90" height="16" rx="3" fill="#111827" stroke="#253040" stroke-width="1" stroke-dasharray="3,2"/>
-          <text x="245" y="270" text-anchor="middle" font-size="7.5" fill="#374151" font-family="system-ui">+2 more pipelines...</text>
+          <text x="245" y="270" text-anchor="middle" font-size="7.5" fill="#8892b0" font-family="system-ui">+2 more pipelines...</text>
 
           <!-- ══════════════════════════════════════════════ -->
           <!-- SOURCE DB → CSV CONNECTIONS                    -->
@@ -365,8 +420,8 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
           <g filter="url(#fshadow)">
             <rect x="415" y="152" width="70" height="44" rx="8" fill="#131c2e" stroke="#475569" stroke-width="1.8"/>
             <text x="450" y="170" text-anchor="middle" font-size="11" fill="#e2e8f0" font-weight="800" font-family="system-ui">mhub</text>
-            <text x="450" y="183" text-anchor="middle" font-size="7.5" fill="#475569" font-family="system-ui">Message Broker</text>
-            <text x="450" y="193" text-anchor="middle" font-size="7" fill="#1e40af" font-family="system-ui">Kafka/RabbitMQ</text>
+            <text x="450" y="183" text-anchor="middle" font-size="7.5" fill="#8094b8" font-family="system-ui">Message Broker</text>
+            <text x="450" y="193" text-anchor="middle" font-size="7" fill="#6090e0" font-family="system-ui">Kafka/RabbitMQ</text>
           </g>
           <circle cx="450" cy="206" r="5.5" fill="#22c55e" filter="url(#fg)"/>
           <circle cx="450" cy="206" r="9" fill="none" stroke="#22c55e" stroke-width="1" opacity=".3"/>
@@ -374,14 +429,14 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
 
           <!-- Arrow mhub → listener -->
           <line x1="485" y1="174" x2="535" y2="174" stroke="#2d3f5e" stroke-width="1.5" marker-end="url(#am)"/>
-          <text x="510" y="168" text-anchor="middle" font-size="7" fill="#2d3f5e" font-family="system-ui">topic</text>
+          <text x="510" y="168" text-anchor="middle" font-size="7" fill="#7090c0" font-family="system-ui">topic</text>
 
           <!-- Message Listener -->
           <g filter="url(#fshadow)">
             <rect x="537" y="148" width="80" height="52" rx="8" fill="#131c2e" stroke="#475569" stroke-width="1.8"/>
             <text x="577" y="167" text-anchor="middle" font-size="9.5" fill="#e2e8f0" font-weight="800" font-family="system-ui">Message</text>
             <text x="577" y="180" text-anchor="middle" font-size="9.5" fill="#e2e8f0" font-weight="800" font-family="system-ui">Listener</text>
-            <text x="577" y="193" text-anchor="middle" font-size="7" fill="#475569" font-family="system-ui">Consumer Group</text>
+            <text x="577" y="193" text-anchor="middle" font-size="7" fill="#8094b8" font-family="system-ui">Consumer Group</text>
           </g>
           <circle cx="577" cy="210" r="5.5" fill="#22c55e" filter="url(#fg)"/>
           <circle cx="577" cy="210" r="9" fill="none" stroke="#22c55e" stroke-width="1" opacity=".3"/>
@@ -389,14 +444,14 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
 
           <!-- Arrow listener → nifi -->
           <line x1="617" y1="174" x2="662" y2="174" stroke="#2d3f5e" stroke-width="1.5" marker-end="url(#am)"/>
-          <text x="640" y="168" text-anchor="middle" font-size="7" fill="#2d3f5e" font-family="system-ui">stream</text>
+          <text x="640" y="168" text-anchor="middle" font-size="7" fill="#7090c0" font-family="system-ui">stream</text>
 
           <!-- Impala NiFi (with warning color) -->
           <g filter="url(#fshadow)">
             <rect x="664" y="145" width="86" height="58" rx="8" fill="#1a1400" stroke="#f59e0b" stroke-width="2"/>
             <text x="707" y="164" text-anchor="middle" font-size="9.5" fill="#fcd34d" font-weight="800" font-family="system-ui">Impala NiFi</text>
-            <text x="707" y="177" text-anchor="middle" font-size="8" fill="#92400e" font-family="system-ui">parquet</text>
-            <text x="707" y="190" text-anchor="middle" font-size="7" fill="#78350f" font-family="system-ui">ETL / Ingest</text>
+            <text x="707" y="177" text-anchor="middle" font-size="8" fill="#e8a060" font-family="system-ui">parquet</text>
+            <text x="707" y="190" text-anchor="middle" font-size="7" fill="#e8a060" font-family="system-ui">ETL / Ingest</text>
             <text x="707" y="201" text-anchor="middle" font-size="7" fill="#f59e0b" font-family="system-ui">⚠ +9m 지연</text>
           </g>
           <circle cx="707" cy="214" r="5.5" fill="#f59e0b" filter="url(#fy)"/>
@@ -405,14 +460,14 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
 
           <!-- Arrow nifi → refresh -->
           <line x1="750" y1="174" x2="802" y2="174" stroke="#2d3f5e" stroke-width="1.5" marker-end="url(#am)"/>
-          <text x="776" y="168" text-anchor="middle" font-size="7" fill="#2d3f5e" font-family="system-ui">parquet</text>
+          <text x="776" y="168" text-anchor="middle" font-size="7" fill="#7090c0" font-family="system-ui">parquet</text>
 
           <!-- Impala Refresh -->
           <g filter="url(#fshadow)">
             <rect x="804" y="148" width="90" height="52" rx="8" fill="#131c2e" stroke="#475569" stroke-width="1.8"/>
             <text x="849" y="166" text-anchor="middle" font-size="9.5" fill="#e2e8f0" font-weight="800" font-family="system-ui">Impala</text>
             <text x="849" y="179" text-anchor="middle" font-size="9.5" fill="#e2e8f0" font-weight="800" font-family="system-ui">Refresh</text>
-            <text x="849" y="193" text-anchor="middle" font-size="7" fill="#475569" font-family="system-ui">Metadata Sync</text>
+            <text x="849" y="193" text-anchor="middle" font-size="7" fill="#8094b8" font-family="system-ui">Metadata Sync</text>
           </g>
           <circle cx="849" cy="210" r="5.5" fill="#22c55e" filter="url(#fg)"/>
           <circle cx="849" cy="210" r="9" fill="none" stroke="#22c55e" stroke-width="1" opacity=".3"/>
@@ -420,13 +475,13 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
 
           <!-- Arrow refresh → client -->
           <line x1="894" y1="174" x2="956" y2="174" stroke="#2d3f5e" stroke-width="1.5" marker-end="url(#am)"/>
-          <text x="925" y="168" text-anchor="middle" font-size="7" fill="#2d3f5e" font-family="system-ui">query API</text>
+          <text x="925" y="168" text-anchor="middle" font-size="7" fill="#7090c0" font-family="system-ui">query API</text>
 
           <!-- Client (with error color) -->
           <g filter="url(#fshadow)">
             <rect x="958" y="148" width="88" height="52" rx="8" fill="#1a0808" stroke="#ef4444" stroke-width="2"/>
             <text x="1002" y="167" text-anchor="middle" font-size="9.5" fill="#fca5a5" font-weight="800" font-family="system-ui">Client</text>
-            <text x="1002" y="181" text-anchor="middle" font-size="8" fill="#7f1d1d" font-family="system-ui">BI / Analytics</text>
+            <text x="1002" y="181" text-anchor="middle" font-size="8" fill="#f08080" font-family="system-ui">BI / Analytics</text>
             <text x="1002" y="193" text-anchor="middle" font-size="7" fill="#ef4444" font-family="system-ui">✗ 쿼리 장애</text>
           </g>
           <circle cx="1002" cy="210" r="5.5" fill="#ef4444" filter="url(#fr)"/>
@@ -435,20 +490,20 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
 
           <!-- Status legend strip at bottom -->
           <rect x="10" y="245" width="1080" height="88" rx="6" fill="#0d1220" stroke="#1a2236" stroke-width="1"/>
-          <text x="20" y="260" font-size="8" fill="#334155" font-weight="700" font-family="system-ui">PIPELINE STATUS SUMMARY</text>
+          <text x="20" y="260" font-size="8" fill="#7090c0" font-weight="700" font-family="system-ui">PIPELINE STATUS SUMMARY</text>
 
           <!-- Step stats boxes -->
           <g font-family="system-ui" font-size="8">
             <!-- Source DB -->
             <rect x="20" y="265" width="100" height="56" rx="5" fill="#111827" stroke="#253040" stroke-width="1"/>
-            <text x="70" y="279" text-anchor="middle" font-size="7.5" fill="#6b7280" font-weight="700">SOURCE DB</text>
+            <text x="70" y="279" text-anchor="middle" font-size="7.5" fill="#8892b0" font-weight="700">SOURCE DB</text>
             <circle cx="55" cy="296" r="5" fill="#6b7280"/>
             <text x="70" y="300" text-anchor="middle" font-size="10" fill="#6b7280" font-weight="800">미확인</text>
-            <text x="70" y="313" text-anchor="middle" font-size="7" fill="#374151">상태 확인 불가</text>
+            <text x="70" y="313" text-anchor="middle" font-size="7" fill="#8892b0">상태 확인 불가</text>
 
             <!-- CSV -->
             <rect x="132" y="265" width="100" height="56" rx="5" fill="#111827" stroke="#253040" stroke-width="1"/>
-            <text x="182" y="279" text-anchor="middle" font-size="7.5" fill="#94a3b8" font-weight="700">CSV (20 pipes)</text>
+            <text x="182" y="279" text-anchor="middle" font-size="7.5" fill="#c8d4e8" font-weight="700">CSV (20 pipes)</text>
             <text x="165" y="299" text-anchor="middle" font-size="9" fill="#22c55e" font-weight="800">18</text>
             <text x="165" y="311" text-anchor="middle" font-size="7" fill="#22c55e">정상</text>
             <text x="188" y="299" text-anchor="middle" font-size="9" fill="#fb923c" font-weight="800">1</text>
@@ -458,17 +513,17 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
 
             <!-- mhub -->
             <rect x="244" y="265" width="90" height="56" rx="5" fill="#111827" stroke="#253040" stroke-width="1"/>
-            <text x="289" y="279" text-anchor="middle" font-size="7.5" fill="#94a3b8" font-weight="700">MHUB</text>
+            <text x="289" y="279" text-anchor="middle" font-size="7.5" fill="#c8d4e8" font-weight="700">MHUB</text>
             <circle cx="289" cy="296" r="5" fill="#22c55e" filter="url(#fg)"/>
             <text x="289" y="313" text-anchor="middle" font-size="9" fill="#22c55e" font-weight="800">정상</text>
-            <text x="289" y="315" text-anchor="middle" font-size="7" fill="#374151">lag: 0ms</text>
+            <text x="289" y="315" text-anchor="middle" font-size="7" fill="#8892b0">lag: 0ms</text>
 
             <!-- Listener -->
             <rect x="346" y="265" width="90" height="56" rx="5" fill="#111827" stroke="#253040" stroke-width="1"/>
-            <text x="391" y="279" text-anchor="middle" font-size="7.5" fill="#94a3b8" font-weight="700">LISTENER</text>
+            <text x="391" y="279" text-anchor="middle" font-size="7.5" fill="#c8d4e8" font-weight="700">LISTENER</text>
             <circle cx="391" cy="296" r="5" fill="#22c55e" filter="url(#fg)"/>
             <text x="391" y="310" text-anchor="middle" font-size="9" fill="#22c55e" font-weight="800">정상</text>
-            <text x="391" y="316" text-anchor="middle" font-size="7" fill="#374151">offset: sync</text>
+            <text x="391" y="316" text-anchor="middle" font-size="7" fill="#8892b0">offset: sync</text>
 
             <!-- NiFi -->
             <rect x="448" y="265" width="100" height="56" rx="5" fill="#111827" stroke="#f59e0b" stroke-width="1"/>
@@ -479,10 +534,10 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
 
             <!-- Impala Refresh -->
             <rect x="560" y="265" width="100" height="56" rx="5" fill="#111827" stroke="#253040" stroke-width="1"/>
-            <text x="610" y="279" text-anchor="middle" font-size="7.5" fill="#94a3b8" font-weight="700">IMPALA REFRESH</text>
+            <text x="610" y="279" text-anchor="middle" font-size="7.5" fill="#c8d4e8" font-weight="700">IMPALA REFRESH</text>
             <circle cx="610" cy="296" r="5" fill="#22c55e" filter="url(#fg)"/>
             <text x="610" y="311" text-anchor="middle" font-size="9" fill="#22c55e" font-weight="800">정상</text>
-            <text x="610" y="315" text-anchor="middle" font-size="7" fill="#374151">23 tables synced</text>
+            <text x="610" y="315" text-anchor="middle" font-size="7" fill="#8892b0">23 tables synced</text>
 
             <!-- Client -->
             <rect x="672" y="265" width="100" height="56" rx="5" fill="#111827" stroke="#ef4444" stroke-width="1"/>
@@ -494,13 +549,13 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
 
           <!-- Overall health bar -->
           <rect x="784" y="265" width="300" height="56" rx="5" fill="#111827" stroke="#253040" stroke-width="1"/>
-          <text x="934" y="279" text-anchor="middle" font-size="8" fill="#94a3b8" font-weight="700" font-family="system-ui">파이프라인 전체 상태</text>
+          <text x="934" y="279" text-anchor="middle" font-size="8" fill="#c8d4e8" font-weight="700" font-family="system-ui">파이프라인 전체 상태</text>
           <rect x="794" y="286" width="280" height="10" rx="5" fill="#1e293b"/>
           <rect x="794" y="286" width="218" height="10" rx="5" fill="#22c55e" opacity=".8"/>
           <text x="794" y="309" font-size="7.5" fill="#22c55e" font-family="system-ui">정상: 78%</text>
           <text x="855" y="309" font-size="7.5" fill="#fb923c" font-family="system-ui">지연: 13%</text>
           <text x="908" y="309" font-size="7.5" fill="#ef4444" font-family="system-ui">실패: 9%</text>
-          <text x="934" y="322" text-anchor="middle" font-size="8" fill="#374151" font-family="system-ui" font-weight="700">Overall Health: 78/100</text>
+          <text x="934" y="322" text-anchor="middle" font-size="8" fill="#8892b0" font-family="system-ui" font-weight="700">Overall Health: 78/100</text>
         </svg>
       </div>
       <div class="legend">
@@ -514,13 +569,31 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
         <div class="lg-item"><div class="lg-circle" style="background:var(--err)"></div>장애</div>
         <div class="lg-item"><div class="lg-circle" style="background:var(--unknown)"></div>미확인 (원천 DB)</div>
       </div>
+      </div><!-- /lineage-body -->
+    </div>
+
+    <!-- ─── Filter Bar ─────────────────────────────────────── -->
+    <div class="card filter-bar">
+      <div class="filter-tabs">
+        <button class="filter-tab active" data-type="all" onclick="setTypeFilter('all')">전체</button>
+        <button class="filter-tab" data-type="cat" onclick="setTypeFilter('cat')">Catalog</button>
+        <button class="filter-tab" data-type="rt" onclick="setTypeFilter('rt')">Realtime</button>
+        <button class="filter-tab" data-type="yms" onclick="setTypeFilter('yms')">YMS CDC</button>
+        <button class="filter-tab" data-type="file" onclick="setTypeFilter('file')">File Publish</button>
+        <button class="filter-tab" data-type="chip" onclick="setTypeFilter('chip')">Chip</button>
+      </div>
+      <div class="filter-row2">
+        <input class="filter-input" id="pipe-search" type="text" placeholder="🔍 파이프라인명 검색 (예: CAT-01, RT)" oninput="buildTimeline()">
+        <button class="filter-clear" onclick="clearFilters()">초기화</button>
+      </div>
+      <div class="pipe-btns" id="pipe-btns"></div>
     </div>
 
     <!-- ─── Pipeline Execution Timeline ──────────────────── -->
     <div class="card">
       <div class="card-hdr">
         <div class="card-title"><span class="card-icon">⏱</span>Pipeline 실행 이력 (최근 24시간)</div>
-        <div class="card-sub">각 칸 = 1시간 구간 · 색상: 성공 / 지연 / 실패 / 누락</div>
+        <div class="card-sub">블록 너비 = interval 크기 · 성공 / 지연 / 실패 / 누락 / 재시도</div>
       </div>
       <div class="tl-wrap" id="tl-wrap"></div>
       <div class="tl-stat-legend">
@@ -528,7 +601,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
         <div class="tl-sl"><div class="tl-sl-box" style="background:var(--delay)"></div>지연</div>
         <div class="tl-sl"><div class="tl-sl-box" style="background:var(--err)"></div>실패</div>
         <div class="tl-sl"><div class="tl-sl-box" style="background:#1c2840;border:1px solid #2d3f5a"></div>누락</div>
-        <div class="tl-sl"><div class="tl-sl-box" style="background:transparent"></div>비활성 구간</div>
+        <div class="tl-sl"><span class="tl-sl-retry"></span>&nbsp;실패→재시도 성공</div>
       </div>
     </div>
 
@@ -670,56 +743,202 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#080d1
 </div><!-- /wrap -->
 
 <script>
-// ─── TIMELINE RENDERER ────────────────────────────────────
+// ─── PIPELINE DATA (interval in minutes) ─────────────────
 const pipes = [
-  { n:'CAT-01', t:'cat', sch:1 }, { n:'CAT-02', t:'cat', sch:1 },
-  { n:'CAT-03', t:'cat', sch:2 }, { n:'CAT-04', t:'cat', sch:1 },
-  { n:'CAT-05', t:'cat', sch:1 }, { n:'CAT-06', t:'cat', sch:2 },
-  { n:'CAT-07', t:'cat', sch:2 }, { n:'CAT-08', t:'cat', sch:1 },
-  { n:'RT-01',  t:'rt',  sch:0 }, { n:'RT-02',  t:'rt',  sch:0 },
-  { n:'RT-03',  t:'rt',  sch:0 }, { n:'RT-04',  t:'rt',  sch:0 },
-  { n:'RT-05',  t:'rt',  sch:0 },
-  { n:'YMS-01', t:'yms', sch:1 }, { n:'YMS-02', t:'yms', sch:1 },
-  { n:'YMS-03', t:'yms', sch:2 }, { n:'YMS-04', t:'yms', sch:2 },
-  { n:'FILE-01',t:'file',sch:3 }, { n:'FILE-02',t:'file',sch:3 },
-  { n:'FILE-03',t:'file',sch:3 },
+  { n:'CAT-01', t:'cat', interval:60  },
+  { n:'CAT-02', t:'cat', interval:60  },
+  { n:'CAT-03', t:'cat', interval:120 },
+  { n:'CAT-04', t:'cat', interval:60  },
+  { n:'CAT-05', t:'cat', interval:60  },
+  { n:'CAT-06', t:'cat', interval:120 },
+  { n:'CAT-07', t:'cat', interval:120 },
+  { n:'CAT-08', t:'cat', interval:60  },
+  { n:'RT-01',  t:'rt',  interval:15  },
+  { n:'RT-02',  t:'rt',  interval:15  },
+  { n:'RT-03',  t:'rt',  interval:15  },
+  { n:'RT-04',  t:'rt',  interval:15  },
+  { n:'RT-05',  t:'rt',  interval:15  },
+  { n:'YMS-01', t:'yms', interval:60  },
+  { n:'YMS-02', t:'yms', interval:60  },
+  { n:'YMS-03', t:'yms', interval:120 },
+  { n:'YMS-04', t:'yms', interval:120 },
+  { n:'FILE-01',t:'file',interval:1440},
+  { n:'FILE-02',t:'file',interval:1440},
+  { n:'FILE-03',t:'file',interval:1440},
+  { n:'CHIP-01',t:'chip',interval:30  },
+  { n:'CHIP-02',t:'chip',interval:30  },
 ];
-const typeColor = { cat:'#3b82f6', rt:'#10b981', yms:'#f97316', file:'#a855f7' };
+const typeColor = { cat:'#3b82f6', rt:'#10b981', yms:'#f97316', file:'#a855f7', chip:'#ec4899' };
+const TOTAL_MIN = 1440; // 24h
 
 function fakeRng(seed) {
-  let s = seed % 1000003;
-  s = (s * 1103515245 + 12345) & 0x7fffffff;
-  return (s % 100);
+  let s = (seed * 1103515245 + 12345) & 0x7fffffff;
+  return s % 100;
 }
-function getStatus(p, h) {
-  const { n, sch } = p;
-  if (sch === 2 && h % 2 !== 0) return 'skip';
-  if (sch === 3 && h % 3 !== 0) return 'skip';
-  if (n === 'CAT-04' && h >= 9) return h === 9 ? 'err' : 'miss';
-  if (n === 'RT-02'  && h >= 8) return 'delay';
-  if (n === 'YMS-03' && h === 8) return 'delay';
-  const r = fakeRng(n.charCodeAt(0) * 13 + n.charCodeAt(n.length-1) * 7 + h * 31);
-  if (r < 78) return 'ok';
-  if (r < 88) return 'delay';
-  if (r < 93) return 'err';
-  return 'miss';
+
+// Generate execution blocks for a pipeline
+function generateExecutions(p) {
+  const { n, interval } = p;
+  const execs = [];
+  const gap = interval >= 1440 ? 0 : interval >= 60 ? 3 : 1; // gap between blocks (min)
+  const blockW = interval - gap;
+
+  for (let startMin = 0; startMin < TOTAL_MIN; startMin += interval) {
+    const slot = Math.floor(startMin / interval);
+    let status = 'ok';
+
+    // Special cases
+    if (n === 'CAT-04') {
+      const h = Math.floor(startMin / 60);
+      if (h === 9)  { status = 'retry'; } // 9:00 실패 → 재시도 성공
+      else if (h >= 10) { status = 'miss'; }
+    } else if (n === 'RT-02') {
+      const h = Math.floor(startMin / 60);
+      if (h >= 8 && h <= 10) { status = 'delay'; }
+      else if (h === 11) { status = 'retry'; } // 회복: 실패 후 재시도 성공
+    } else if (n === 'YMS-03') {
+      const h = Math.floor(startMin / 60);
+      if (h === 8) { status = 'retry'; } // 지연 후 재시도 성공
+    } else if (n === 'FILE-01') {
+      status = 'ok';
+    } else {
+      const seed = n.charCodeAt(0) * 97 + (n.charCodeAt(n.length - 1) || 0) * 53 + slot * 31;
+      const r = fakeRng(seed);
+      if (r < 76) status = 'ok';
+      else if (r < 87) status = 'delay';
+      else if (r < 93) status = 'err';
+      else status = 'miss';
+    }
+
+    execs.push({ startMin, durationMin: blockW, status });
+  }
+  return execs;
 }
-function buildTimeline() {
-  const hrs = Array.from({length:24}, (_,i) => i);
-  let html = '<div class="tl-hdr">';
-  hrs.forEach(h => { html += `<div class="tl-hr">${String(h).padStart(2,'0')}</div>`; });
-  html += '</div>';
-  pipes.forEach(p => {
-    const c = typeColor[p.t];
-    html += `<div class="tl-row"><div class="tl-lbl" style="color:${c}">${p.n}</div><div class="tl-bars">`;
-    hrs.forEach(h => {
-      const s = getStatus(p, h);
-      html += `<div class="tl-cell ${s}" title="${p.n} ${String(h).padStart(2,'0')}:00 — ${s}"></div>`;
-    });
-    html += '</div></div>';
+
+function fmtMin(m) {
+  const h = Math.floor(m / 60), mn = m % 60;
+  return `${String(h).padStart(2,'0')}:${String(mn).padStart(2,'0')}`;
+}
+
+function intervalLabel(min) {
+  if (min >= 1440) return '1일';
+  if (min >= 60)   return `${min/60}h`;
+  return `${min}m`;
+}
+
+// ─── FILTER STATE ─────────────────────────────────────────
+let activeType = 'all';
+let activePipeNames = new Set();
+
+function setTypeFilter(type) {
+  activeType = type;
+  activePipeNames.clear();
+  document.querySelectorAll('.filter-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.type === type)
+  );
+  renderPipeButtons();
+  buildTimeline();
+}
+
+function renderPipeButtons() {
+  const container = document.getElementById('pipe-btns');
+  const filtered = activeType === 'all' ? [] : pipes.filter(p => p.t === activeType);
+  if (!filtered.length) { container.innerHTML = ''; return; }
+  const c = typeColor[activeType] || '#6366f1';
+  container.innerHTML = filtered.map(p =>
+    `<button class="pipe-btn" data-name="${p.n}"
+       style="color:${c};border-color:${c}"
+       onclick="togglePipeBtn(this,'${p.n}')">${p.n}</button>`
+  ).join('');
+}
+
+function togglePipeBtn(btn, name) {
+  if (activePipeNames.has(name)) {
+    activePipeNames.delete(name);
+    btn.classList.remove('active');
+  } else {
+    activePipeNames.add(name);
+    btn.classList.add('active');
+  }
+  buildTimeline();
+}
+
+function clearFilters() {
+  activeType = 'all';
+  activePipeNames.clear();
+  document.getElementById('pipe-search').value = '';
+  document.querySelectorAll('.filter-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.type === 'all')
+  );
+  document.getElementById('pipe-btns').innerHTML = '';
+  buildTimeline();
+}
+
+function getFilteredPipes() {
+  const search = document.getElementById('pipe-search').value.toLowerCase().trim();
+  return pipes.filter(p => {
+    if (activeType !== 'all' && p.t !== activeType) return false;
+    if (activePipeNames.size > 0 && !activePipeNames.has(p.n)) return false;
+    if (search && !p.n.toLowerCase().includes(search) && !p.t.includes(search)) return false;
+    return true;
   });
+}
+
+// ─── TIMELINE RENDERER ─────────────────────────────────────
+function buildTimeline() {
+  const visible = getFilteredPipes();
+
+  // Hour header (absolute-positioned marks)
+  let hrMarks = '';
+  for (let h = 0; h < 24; h++) {
+    hrMarks += `<span class="tl-hr" style="left:${(h/24*100).toFixed(2)}%">${String(h).padStart(2,'0')}</span>`;
+  }
+  hrMarks += `<span class="tl-hr" style="left:100%">24</span>`;
+
+  let html = `<div class="tl-hdr"><div class="tl-hdr-spacer"></div><div class="tl-hr-row">${hrMarks}</div></div>`;
+
+  if (!visible.length) {
+    html += '<div class="tl-no-result">검색 결과가 없습니다.</div>';
+    document.getElementById('tl-wrap').innerHTML = html;
+    return;
+  }
+
+  visible.forEach(p => {
+    const c = typeColor[p.t];
+    const execs = generateExecutions(p);
+    const ilbl = intervalLabel(p.interval);
+
+    let bars = '';
+    execs.forEach(e => {
+      const left  = (e.startMin / TOTAL_MIN * 100).toFixed(4);
+      const width = (e.durationMin / TOTAL_MIN * 100).toFixed(4);
+      const statusLabel = e.status === 'retry' ? '실패→재시도 성공' : e.status;
+      const title = `${p.n}  ${fmtMin(e.startMin)} (interval: ${ilbl})  — ${statusLabel}`;
+      const retryIcon = (e.status === 'retry' && p.interval >= 60)
+        ? `<span class="tl-retry-icon">↺</span>` : '';
+      bars += `<div class="tl-exec ${e.status}" style="left:${left}%;width:${width}%" title="${title}">${retryIcon}</div>`;
+    });
+
+    html += `<div class="tl-row">
+      <div class="tl-lbl">
+        <span class="tl-lbl-name" style="color:${c}">${p.n}</span>
+        <span class="tl-interval-badge">${ilbl}</span>
+      </div>
+      <div class="tl-bars">${bars}</div>
+    </div>`;
+  });
+
   document.getElementById('tl-wrap').innerHTML = html;
 }
+
+// ─── LINEAGE TOGGLE ────────────────────────────────────────
+function toggleLineage() {
+  const body = document.getElementById('lineage-body');
+  const btn  = document.getElementById('lineage-toggle-btn');
+  const collapsed = body.classList.toggle('collapsed');
+  btn.textContent = collapsed ? '펼치기 ▼' : '접기 ▲';
+}
+
 buildTimeline();
 
 // ─── CHART.JS DEFAULTS ───────────────────────────────────
